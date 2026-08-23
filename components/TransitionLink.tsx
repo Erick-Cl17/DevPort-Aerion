@@ -38,7 +38,7 @@ export default function TransitionLink({
             {saliendo && (
                 <div
                     aria-hidden
-                    className="fixed inset-0 z-[100] pointer-events-none flex items-center justify-center"
+                    className="fixed inset-0 z-100 pointer-events-none flex items-center justify-center"
                 >
                     <div
                         className="h-40 w-40 rounded-full blur-3xl animate-sweep-in"

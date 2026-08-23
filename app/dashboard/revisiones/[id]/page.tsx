@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
+import { obtenerContextoUsuario } from "@/lib/data";
 import { formatearEnZona } from "@/lib/timezonedb";
+import { EVIDENCIAS_BUCKET } from "@/lib/storage-config";
 import { redirect, notFound } from "next/navigation";
 
 export default async function DetalleRevisionPage({
@@ -9,9 +11,8 @@ export default async function DetalleRevisionPage({
 }) {
     const { id } = await params;
     const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    // Evita una llamada a auth.getUser() duplicada.
+    const { user } = await obtenerContextoUsuario();
 
     const { data: revision } = await supabase
         .from("revisiones_estado")
@@ -26,6 +27,12 @@ export default async function DetalleRevisionPage({
         .select("tipo_evento, fecha_hora, actor:actor_id(nombre, apellido)")
         .eq("revision_id", id)
         .order("fecha_hora", { ascending: false });
+
+    const { data: evidencias } = await supabase
+        .from("evidencias")
+        .select("id, nombre_archivo, storage_path, created_at, subido_por:subido_por(nombre, apellido)")
+        .eq("revision_id", id)
+        .order("created_at", { ascending: false });
 
     const esResponsable = revision.responsable_id === user!.id;
 
@@ -84,6 +91,41 @@ export default async function DetalleRevisionPage({
             revision_id: id,
             tipo_evento: "cancelacion",
             actor_id: user!.id,
+        });
+
+        redirect(`/dashboard/revisiones/${id}`);
+    }
+
+    // Sube el archivo a Storage y guarda en la base de datos SOLO la ruta, 
+    // nunca el contenido del archivo. El archivo en sí vive
+    // en el bucket configurado en lib/storage-config.ts.
+    async function subirEvidencia(formData: FormData) {
+        "use server";
+        const supabase = await createClient();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        const archivo = formData.get("archivo") as File;
+        if (!archivo || archivo.size === 0) {
+            redirect(`/dashboard/revisiones/${id}?error=${encodeURIComponent("Selecciona un archivo antes de subir")}`);
+        }
+
+        const ruta = `${id}/${Date.now()}-${archivo.name}`;
+
+        const { error: errorSubida } = await supabase.storage
+            .from(EVIDENCIAS_BUCKET)
+            .upload(ruta, archivo);
+
+        if (errorSubida) {
+            redirect(`/dashboard/revisiones/${id}?error=${encodeURIComponent(errorSubida.message)}`);
+        }
+
+        await supabase.from("evidencias").insert({
+            revision_id: id,
+            subido_por: user!.id,
+            storage_path: ruta,
+            nombre_archivo: archivo.name,
         });
 
         redirect(`/dashboard/revisiones/${id}`);
@@ -163,6 +205,44 @@ export default async function DetalleRevisionPage({
                 {(eventos ?? []).length === 0 && (
                     <li className="px-4 py-6 text-center text-muted-foreground text-sm">
                         Sin eventos registrados todavía.
+                    </li>
+                )}
+            </ul>
+
+            <h2 className="font-display text-lg font-semibold text-foreground mb-3 mt-10">
+                Evidencias
+            </h2>
+
+            {!revision.cancelada && (
+                <form action={subirEvidencia} className="panel p-4 flex items-center gap-3 mb-4">
+                    <input
+                        type="file"
+                        name="archivo"
+                        required
+                        className="flex-1 text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-secondary file:text-secondary-foreground"
+                    />
+                    <button
+                        type="submit"
+                        className="bg-gradient-accent text-primary-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 shrink-0"
+                    >
+                        Subir
+                    </button>
+                </form>
+            )}
+
+            <ul className="panel divide-y divide-border">
+                {(evidencias ?? []).map((ev: any) => (
+                    <li key={ev.id} className="px-4 py-3 text-sm flex justify-between items-center">
+                        <span className="text-foreground">{ev.nombre_archivo}</span>
+                        <span className="text-muted-foreground text-xs">
+                            {ev.subido_por?.nombre} {ev.subido_por?.apellido} ·{" "}
+                            {new Date(ev.created_at).toLocaleString("es-EC")}
+                        </span>
+                    </li>
+                ))}
+                {(evidencias ?? []).length === 0 && (
+                    <li className="px-4 py-6 text-center text-muted-foreground text-sm">
+                        Todavía no se ha subido ninguna evidencia.
                     </li>
                 )}
             </ul>

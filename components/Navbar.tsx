@@ -5,6 +5,10 @@ import { redirect } from "next/navigation";
 
 // Aquí se agrega además el nombre de la organización y el nivel de rol más alto del 
 // usuario, porque en AERION el menú debe reflejar el alcance (organización/equipo)
+
+// El contexto (usuario + perfil + rol) se obtiene UNA sola vez por petición gracias a 
+// obtenerContextoUsuario() (lib/data.ts), que usa cache() de React — así el Navbar y 
+// la página que se esté mostrando no duplican las mismas consultas a Supabase.
 export default async function Navbar() {
     const { user, profile, organizacionNombre, nivel } = await obtenerContextoUsuario();
 

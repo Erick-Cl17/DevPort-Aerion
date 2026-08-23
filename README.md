@@ -4,11 +4,12 @@ Gestión de revisiones, actividades y usuarios por organización, equipo,
 cargo y rol. Cada equipo puede tener su propia zona horaria y sus propios
 plazos, con trazabilidad completa de cada cambio.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Stack tecnológico
 
 - Next.js 14.2 (App Router)
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
 - TypeScript 5
 - Tailwind CSS 3.4
 - Supabase (PostgreSQL + Auth + Storage)
@@ -106,7 +107,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [x] CRUD completo del recurso principal (revisiones)
 - [x] Base de datos relacional con RLS activado
 - [x] Consumo de API externa (TimeZoneDB) con manejo de error si no responde
+- [x] Subida de evidencias a Supabase Storage 
 
 ## Autor
 
-_Pendiente — completar con nombre y, opcionalmente, GitHub/LinkedIn._
+_[Erick Clavijo](https://github.com/Erick-Cl17)_

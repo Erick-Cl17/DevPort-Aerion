@@ -89,8 +89,7 @@ export default function LoginPage() {
                     >
                         {cargando ? "Ingresando..." : "Iniciar sesión"}
                     </button>
-                    {/* Deliberadamente NO hay botón de "continuar como invitado":
-                        quien no tenga cuenta debe registrarse, ver enlace abajo. */}
+                   
                 </form>
 
                 <p className="text-muted-foreground text-center mt-6 text-sm">

@@ -22,8 +22,8 @@ export async function obtenerHoraEnZona(
             `https://api.timezonedb.com/v2.1/get-time-zone?key=${apiKey}&format=json&by=zone&zone=${encodeURIComponent(
                 zoneName
             )}`,
-            // Los horarios cambian a cada minuto: no cachear indefinidamente.
-            { next: { revalidate: 60 } }
+            // 5 minutos de caché: suficiente para mostrar una hora "actual"
+            { next: { revalidate: 300 } }
         );
 
         if (!res.ok) {
@@ -53,8 +53,7 @@ export async function obtenerHoraEnZona(
 }
 
 // Conversión de un instante UTC a una zona horaria IANA usando Intl,
-// para mostrar los plazos de las revisiones (no depende de la API externa,
-// que solo se usa para el widget de "hora actual" del dashboard).
+// para mostrar los plazos de las revisiones
 export function formatearEnZona(fechaISO: string, zona: string): string {
     return new Intl.DateTimeFormat("es-EC", {
         timeZone: zona,

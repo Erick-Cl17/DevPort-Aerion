@@ -1,7 +1,12 @@
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 
-export default async function NuevaRevisionPage() {
+export default async function NuevaRevisionPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ error?: string }>;
+}) {
+    const { error: errorParam } = await searchParams;
     const supabase = await createClient();
     const {
         data: { user },
@@ -20,20 +25,33 @@ export default async function NuevaRevisionPage() {
         } = await supabase.auth.getUser();
         if (!user) redirect("/login");
 
-        const equipoId = formData.get("equipo_id") as string;
+        const codigo = (formData.get("codigo") as string ?? "").trim();
+        const titulo = (formData.get("titulo") as string ?? "").trim();
+        const equipoId = (formData.get("equipo_id") as string ?? "").trim();
+        const responsableId = (formData.get("responsable_id") as string ?? "").trim();
+        const fechaInicio = (formData.get("fecha_inicio") as string ?? "").trim();
+        const fechaFin = (formData.get("fecha_fin") as string ?? "").trim();
+
+        // El atributo "required" del navegador se puede saltar (herramientas
+        // de desarrollador, un POST directo). El servidor vuelve a exigir
+        // que ningún campo obligatorio llegue vacío o solo con espacios.
+        if (!codigo || !titulo || !equipoId || !responsableId || !fechaInicio || !fechaFin) {
+            redirect("/dashboard/revisiones/nueva?error=" + encodeURIComponent("Todos los campos obligatorios deben estar completos"));
+        }
+
         const equipo = (await supabase.from("equipos").select("zona_horaria").eq("id", equipoId).single()).data;
 
         const { data: nueva, error } = await supabase
             .from("revisiones")
             .insert({
-                codigo: formData.get("codigo") as string,
-                titulo: formData.get("titulo") as string,
-                descripcion: formData.get("descripcion") as string,
+                codigo,
+                titulo,
+                descripcion: ((formData.get("descripcion") as string) ?? "").trim() || null,
                 equipo_id: equipoId,
-                responsable_id: formData.get("responsable_id") as string,
+                responsable_id: responsableId,
                 creado_por: user!.id,
-                fecha_inicio_plazo: formData.get("fecha_inicio") as string,
-                fecha_fin_plazo: formData.get("fecha_fin") as string,
+                fecha_inicio_plazo: fechaInicio,
+                fecha_fin_plazo: fechaFin,
                 zona_horaria_plazo: equipo?.zona_horaria ?? "America/Guayaquil",
             })
             .select("id")
@@ -58,6 +76,12 @@ export default async function NuevaRevisionPage() {
             <h1 className="font-display text-2xl font-bold text-foreground mb-6">
                 Nueva revisión
             </h1>
+
+            {errorParam && (
+                <p className="bg-critical/10 border border-critical/40 text-critical text-sm rounded-lg px-4 py-3 mb-4">
+                    {errorParam}
+                </p>
+            )}
 
             <form action={crearRevision} className="panel p-6 flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-3">

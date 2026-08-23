@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import { obtenerContextoUsuario } from "@/lib/data";
 import { obtenerHoraEnZona, formatearEnZona } from "@/lib/timezonedb";
 import Link from "next/link";
 
@@ -13,17 +14,10 @@ const ESTADO_COLOR: Record<string, string> = {
 
 export default async function DashboardPage() {
     const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const { profile } = await obtenerContextoUsuario();
 
-    const { data: profile } = await supabase
-        .from("profiles")
-        .select("nombre, apellido, zona_horaria")
-        .eq("id", user!.id)
-        .single();
-
-    // La vista revisiones_estado ya calcula estado y cumplimiento en SQL
+    // (ver AERION_Script_SQL.sql) — aquí solo se agrupa para el KPI, sin
+    // volver a pedir el usuario ni el perfil (ya vinieron del contexto).
     const { data: revisiones } = await supabase
         .from("revisiones_estado")
         .select("id, codigo, titulo, estado, fecha_fin_plazo, zona_horaria_plazo, equipos(nombre)")
