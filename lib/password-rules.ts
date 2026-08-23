@@ -36,7 +36,10 @@ export const PASSWORD_RULES: PasswordRule[] = [
     {
         id: "seqnum",
         label: "Evita secuencias numéricas consecutivas (123, 234...)",
+        // v.length > 0 evita que un campo vacío se muestre en verde: la
+        // ausencia de una secuencia no es lo mismo que cumplir la regla.
         test: (v) =>
+            v.length > 0 &&
             !/(?:012|123|234|345|456|567|678|789|987|876|765|654|543|432|321|210)/.test(
                 v
             ),
@@ -45,6 +48,7 @@ export const PASSWORD_RULES: PasswordRule[] = [
         id: "seqalpha",
         label: "Evita secuencias alfabéticas consecutivas (abc, xyz...)",
         test: (v) => {
+            if (v.length === 0) return false;
             const s = v.toLowerCase();
             for (let i = 0; i + 2 < s.length; i++) {
                 const a = s.charCodeAt(i);

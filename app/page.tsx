@@ -1,4 +1,4 @@
-import Link from "next/link";
+import TransitionLink from "@/components/TransitionLink";
 
 export default function Home() {
     return (
@@ -6,29 +6,31 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-hero pointer-events-none" />
             <div className="relative max-w-5xl mx-auto px-6 py-28 text-center">
                 <span className="inline-block text-xs tracking-[0.2em] uppercase text-cyan mb-4">
-                    Gestión de revisiones multi-equipo
+                    Bienvenido a
                 </span>
                 <h1 className="font-display text-4xl sm:text-6xl font-bold text-foreground mb-6">
-                    AERION
+                    AERION - Gestión de revisiones multi-equipo
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-10">
                     Controla el acceso a cada módulo por organización, equipo, cargo y
                     rol. Crea revisiones con plazos, respeta la zona horaria de cada
                     equipo y mantén trazabilidad completa de cada cambio.
                 </p>
-                <div className="flex items-center justify-center gap-4">
-                    <Link
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <TransitionLink
                         href="/register"
-                        className="bg-gradient-accent text-primary-foreground font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity"
+                        glowColor="var(--primary)"
+                        className="w-full sm:w-auto bg-gradient-accent text-primary-foreground font-semibold px-8 py-3.5 rounded-xl transition-all hover:opacity-90 hover:shadow-lift"
                     >
-                        Crear cuenta
-                    </Link>
-                    <Link
+                        Registrarse
+                    </TransitionLink>
+                    <TransitionLink
                         href="/login"
-                        className="border border-border-strong text-foreground font-semibold px-6 py-3 rounded-xl hover:bg-secondary transition-colors"
+                        glowColor="var(--cyan)"
+                        className="w-full sm:w-auto border border-border-strong text-foreground font-semibold px-8 py-3.5 rounded-xl transition-all hover:bg-secondary hover:border-primary/60 hover:shadow-lift"
                     >
-                        Iniciar sesión
-                    </Link>
+                        Acceder
+                    </TransitionLink>
                 </div>
             </div>
 

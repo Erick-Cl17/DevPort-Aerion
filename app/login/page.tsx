@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase-browser"; 
+import { createClient } from "@/lib/supabase-browser";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -44,8 +44,12 @@ export default function LoginPage() {
     }
 
     return (
-        <section className="min-h-[70vh] flex items-center justify-center px-4">
-            <div className="w-full max-w-md panel p-8">
+        <section className="relative min-h-[70vh] flex items-center justify-center px-4 grid-field">
+            <div
+                aria-hidden
+                className="absolute top-1/4 left-1/2 -translate-x-1/2 h-56 w-56 rounded-full bg-cyan/20 blur-3xl animate-glow-pulse pointer-events-none"
+            />
+            <div className="relative w-full max-w-md panel p-8">
                 <h1 className="font-display text-2xl font-bold text-foreground mb-2">
                     Iniciar sesión
                 </h1>
@@ -81,10 +85,12 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={cargando}
-                        className="bg-gradient-accent text-primary-foreground font-semibold py-3 rounded-lg transition-opacity disabled:opacity-40 hover:opacity-90"
+                        className="bg-gradient-accent text-primary-foreground font-semibold py-3 rounded-lg transition-all disabled:opacity-40 hover:opacity-90 hover:shadow-lift"
                     >
                         {cargando ? "Ingresando..." : "Iniciar sesión"}
                     </button>
+                    {/* Deliberadamente NO hay botón de "continuar como invitado":
+                        quien no tenga cuenta debe registrarse, ver enlace abajo. */}
                 </form>
 
                 <p className="text-muted-foreground text-center mt-6 text-sm">

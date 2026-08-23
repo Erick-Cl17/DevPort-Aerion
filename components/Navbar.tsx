@@ -1,41 +1,16 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
+import { obtenerContextoUsuario } from "@/lib/data";
 import { redirect } from "next/navigation";
 
 // Aquí se agrega además el nombre de la organización y el nivel de rol más alto del 
 // usuario, porque en AERION el menú debe reflejar el alcance (organización/equipo)
 export default async function Navbar() {
-    const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const { user, profile, organizacionNombre, nivel } = await obtenerContextoUsuario();
 
-    let nombreCompleto: string | null = null;
-    let nivel: string | null = null;
-    let organizacionNombre: string | null = null;
-
-    if (user) {
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("nombre, apellido, organizacion_id, organizaciones(nombre)")
-            .eq("id", user.id)
-            .single();
-
-        if (profile) {
-            nombreCompleto = `${profile.nombre} ${profile.apellido}`.trim();
-            organizacionNombre = (profile as any).organizaciones?.nombre ?? null;
-        }
-
-        const { data: asignacion } = await supabase
-            .from("asignaciones")
-            .select("roles(nivel)")
-            .eq("usuario_id", user.id)
-            .eq("estado", "activo")
-            .limit(1)
-            .maybeSingle();
-
-        nivel = (asignacion as any)?.roles?.nivel ?? null;
-    }
+    const nombreCompleto = profile
+        ? `${profile.nombre} ${profile.apellido}`.trim()
+        : null;
 
     async function signOut() {
         "use server";

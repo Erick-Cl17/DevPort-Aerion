@@ -1,4 +1,58 @@
+# AERION
+
+Gestión de revisiones, actividades y usuarios por organización, equipo,
+cargo y rol. Cada equipo puede tener su propia zona horaria y sus propios
+plazos, con trazabilidad completa de cada cambio.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Stack tecnológico
+
+- Next.js 14.2 (App Router)
+- TypeScript 5
+- Tailwind CSS 3.4
+- Supabase (PostgreSQL + Auth + Storage)
+- TimeZoneDB (API externa de zonas horarias)
+- Vercel (deploy) — _pendiente_
+
+## Roles de usuario
+
+| Rol | Alcance | Qué puede hacer |
+|---|---|---|
+| **Superadmin** | Toda la organización | Control total: crea/edita cualquier equipo, usuario, cargo o rol |
+| **Admin. organización** | Toda la organización | Igual que Superadmin salvo tareas reservadas al dueño de la cuenta |
+| **Admin. equipo** | Un equipo específico | Administra usuarios y revisiones solo dentro de su equipo |
+| **Supervisor** | Un equipo específico | Crea y gestiona revisiones de su equipo, no administra usuarios |
+| **Revisor** | Un equipo específico | Es responsable de revisiones asignadas: puede iniciarlas y finalizarlas |
+| **Consulta** | Un equipo específico | Solo lectura dentro de su equipo |
+
+Un mismo usuario puede tener roles distintos en equipos distintos (ej.
+Supervisor en un equipo y Consulta en otro) — cada asignación es
+independiente.
+
+## Modelo de datos
+
+12 tablas relacionadas (ver `AERION_Script_SQL.sql` para el detalle completo):
+
+- **organizaciones** → **equipos** → **asignaciones** (usuario + equipo + cargo + rol)
+- **profiles** extiende `auth.users` (1:1)
+- **roles** ↔ **permisos** (N:M vía `roles_permisos`)
+- **revisiones** (recurso principal) → **revision_eventos** (trazabilidad) y **evidencias** (archivos en Storage, solo se guarda la ruta)
+- **auditoria** y **notificaciones**, independientes
+
+El estado de una revisión (No iniciada / En proceso / Finalizada en plazo /
+Finalizada fuera de plazo / Vencida) se calcula en tiempo real con una
+función SQL, no se guarda como columna fija.
+
+## Instalación local
+
+```bash
+git clone <url-del-repo>
+cd aerion
+npm install
+cp .env.example .env.local   # completar con tus claves reales
+npm run dev
+```
 
 ## Getting Started
 
@@ -20,6 +74,14 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Variables de entorno
+
+| Variable | Para qué sirve |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto de Supabase |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Llave pública (anon) de Supabase |
+| `TIMEZONEDB_API_KEY` | Llave gratuita de timezonedb.com/register |
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
@@ -34,3 +96,17 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Funcionalidades — checklist
+
+- [x] Registro, login, logout, confirmación de cuenta por correo
+- [x] Protección de rutas privadas con `proxy.ts`
+- [x] Roles y permisos por organización/equipo 
+- [x] Ruta dinámica `/dashboard/revisiones/[id]`
+- [x] CRUD completo del recurso principal (revisiones)
+- [x] Base de datos relacional con RLS activado
+- [x] Consumo de API externa (TimeZoneDB) con manejo de error si no responde
+
+## Autor
+
+_Pendiente — completar con nombre y, opcionalmente, GitHub/LinkedIn._

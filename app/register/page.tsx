@@ -18,10 +18,12 @@ export default function RegisterPage() {
 
     const contraseñaValida = passwordCumpleTodo(password);
     const coinciden = password.length > 0 && password === confirmPassword;
+    // trim() en los tres campos de texto: " " (solo espacios) no debe
+    // contar como un valor válido, aunque no esté técnicamente "vacío".
     const formularioValido =
-        nombre.trim() !== "" &&
-        apellido.trim() !== "" &&
-        email.trim() !== "" &&
+        nombre.trim().length > 0 &&
+        apellido.trim().length > 0 &&
+        email.trim().length > 0 &&
         contraseñaValida &&
         coinciden;
 
@@ -38,10 +40,10 @@ export default function RegisterPage() {
         // handle_new_user() (ver AERION_Script_SQL.sql) los copie a profiles.
         // emailRedirectTo apunta al Route Handler que confirma la cuenta.
         const { error } = await supabase.auth.signUp({
-            email,
+            email: email.trim(),
             password,
             options: {
-                data: { nombre, apellido },
+                data: { nombre: nombre.trim(), apellido: apellido.trim() },
                 emailRedirectTo: `${window.location.origin}/auth/confirm`,
             },
         });
@@ -137,7 +139,7 @@ export default function RegisterPage() {
                     <button
                         type="submit"
                         disabled={!formularioValido || cargando}
-                        className="bg-gradient-accent text-primary-foreground font-semibold py-3 rounded-lg transition-opacity disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
+                        className="bg-gradient-accent text-primary-foreground font-semibold py-3 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 hover:shadow-lift"
                     >
                         {cargando ? "Creando cuenta..." : "Crear cuenta"}
                     </button>
