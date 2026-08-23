@@ -1,4 +1,13 @@
 import TransitionLink from "@/components/TransitionLink";
+import ImagenConBrillo from "@/components/ImagenConBrillo";
+import { IMAGENES } from "@/lib/image-paths";
+
+const SIMULADORES = [
+    { nombre: "Aviación", src: IMAGENES.simAviacion, glow: "var(--primary)" },
+    { nombre: "Helicópteros", src: IMAGENES.simHelicopteros, glow: "var(--cyan)" },
+    { nombre: "Espacio", src: IMAGENES.simEspacio, glow: "var(--accent)" },
+    { nombre: "Drones", src: IMAGENES.simDrones, glow: "var(--success)" },
+];
 
 export default function Home() {
     return (
@@ -9,12 +18,13 @@ export default function Home() {
                     Bienvenido a
                 </span>
                 <h1 className="font-display text-4xl sm:text-6xl font-bold text-foreground mb-6">
-                    AERION - Gestión de revisiones multi-equipo
+                    AERION - Gestión de revisiones multiequipo
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-10">
                     Controla el acceso a cada módulo por organización, equipo, cargo y
                     rol. Crea revisiones con plazos, respeta la zona horaria de cada
-                    equipo y mantén trazabilidad completa de cada cambio.
+                    equipo y mantén trazabilidad completa de cada cambio. 
+                    Inicia sesión o crea tu cuenta para continuar.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <TransitionLink
@@ -60,6 +70,21 @@ export default function Home() {
                     </div>
                 ))}
             </div>
+
+            <div className="relative max-w-4xl mx-auto px-6 pb-24 grid grid-cols-2 sm:grid-cols-4 gap-6">
+                {SIMULADORES.map((sim) => (
+                    <div key={sim.nombre} className="flex flex-col items-center gap-3">
+                        <ImagenConBrillo
+                            src={sim.src}
+                            alt={sim.nombre}
+                            glowColor={sim.glow}
+                            className="h-20 w-20 sm:h-24 sm:w-24"
+                        />
+                        <span className="text-xs text-muted-foreground">{sim.nombre}</span>
+                    </div>
+                ))}
+            </div>
+
         </section>
     );
 }

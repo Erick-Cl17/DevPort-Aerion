@@ -48,10 +48,10 @@ función SQL, no se guarda como columna fija.
 ## Instalación local
 
 ```bash
-git clone <url-del-repo>
+git clone <https://github.com/Erick-Cl17/DevPort-Aerion.git>
 cd aerion
 npm install
-cp .env.example .env.local   # completar con tus claves reales
+cp .env.local
 npm run dev
 ```
 

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase-server";
 import { obtenerContextoUsuario } from "@/lib/data";
+import { IMAGENES } from "@/lib/image-paths";
 import { redirect } from "next/navigation";
 
 // Aquí se agrega además el nombre de la organización y el nivel de rol más alto del 
@@ -27,9 +29,15 @@ export default async function Navbar() {
         <nav className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur px-6 py-4 flex justify-between items-center">
             <Link
                 href="/"
-                className="font-display text-xl font-bold text-foreground hover:text-primary transition-colors"
+                className="flex items-center text-foreground hover:text-primary transition-colors"
             >
-                AERION
+                <Image
+                    src={IMAGENES.logo}
+                    alt="AERION"
+                    width={120}
+                    height={36}
+                    className="h-9 w-auto object-contain"
+                />
             </Link>
 
             <div className="flex items-center gap-6">

@@ -4,9 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
 // Envuelve un enlace normal para que, al hacer clic, se vea un barrido de
-// luz cubriendo la pantalla antes de navegar — en vez de un salto seco a
-// la siguiente página. La navegación real sigue siendo una ruta normal de
-// Next.js (router.push), esto solo agrega el efecto visual de por medio.
+// luz cubriendo la pantalla antes de navegar 
 export default function TransitionLink({
     href,
     children,
