@@ -96,9 +96,6 @@ export default async function DetalleRevisionPage({
         redirect(`/dashboard/revisiones/${id}`);
     }
 
-    // Sube el archivo a Storage y guarda en la base de datos SOLO la ruta, 
-    // nunca el contenido del archivo. El archivo en sí vive
-    // en el bucket configurado en lib/storage-config.ts.
     async function subirEvidencia(formData: FormData) {
         "use server";
         const supabase = await createClient();

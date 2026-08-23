@@ -117,6 +117,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 - [x] Base de datos relacional con RLS activado
 - [x] Consumo de API externa (TimeZoneDB) con manejo de error si no responde
 - [x] Subida de evidencias a Supabase Storage 
+- [x] Componente de búsqueda/filtro con `useState` (dashboard, sin consultas nuevas a Supabase)
 
 ## Deploy on Vercel
 
