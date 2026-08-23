@@ -1,8 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@config "../tailwind.config.ts";
+@import "tailwindcss";
 
 /*
  * AERION — tema oscuro "Nexus" (portado de ProyectBaseUI/GUI/src/styles.css)
