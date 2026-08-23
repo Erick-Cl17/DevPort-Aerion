@@ -53,6 +53,15 @@ export default async function Navbar() {
                     </Link>
                 )}
 
+                {user && (
+                    <Link
+                        href="/dashboard/equipos"
+                        className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                    >
+                        Equipos
+                    </Link>
+                )}
+
                 {user ? (
                     <div className="flex items-center gap-4">
                         <div className="text-right leading-tight hidden sm:block">
