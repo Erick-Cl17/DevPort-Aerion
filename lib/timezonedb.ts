@@ -1,0 +1,64 @@
+// Consumo de la API externa TimeZoneDB 
+
+export type ZonaHorariaInfo = {
+    zoneName: string;
+    formatted: string; // fecha/hora actual en esa zona, ya formateada
+    gmtOffset: number; // segundos respecto a UTC
+    abbreviation: string;
+    dst: boolean;
+};
+
+export async function obtenerHoraEnZona(
+    zoneName: string
+): Promise<{ data: ZonaHorariaInfo | null; error: string | null }> {
+    const apiKey = process.env.TIMEZONEDB_API_KEY;
+
+    if (!apiKey) {
+        return { data: null, error: "TIMEZONEDB_API_KEY no configurada" };
+    }
+
+    try {
+        const res = await fetch(
+            `https://api.timezonedb.com/v2.1/get-time-zone?key=${apiKey}&format=json&by=zone&zone=${encodeURIComponent(
+                zoneName
+            )}`,
+            // Los horarios cambian a cada minuto: no cachear indefinidamente.
+            { next: { revalidate: 60 } }
+        );
+
+        if (!res.ok) {
+            return { data: null, error: `TimeZoneDB respondió con estado ${res.status}` };
+        }
+
+        const json = await res.json();
+
+        if (json.status !== "OK") {
+            return { data: null, error: json.message ?? "Respuesta inesperada de TimeZoneDB" };
+        }
+
+        return {
+            data: {
+                zoneName: json.zoneName,
+                formatted: json.formatted,
+                gmtOffset: json.gmtOffset,
+                abbreviation: json.abbreviation,
+                dst: json.dst === "1" || json.dst === 1,
+            },
+            error: null,
+        };
+    } catch {
+        // La API no respondió a tiempo o no hay conexión — no debe tumbar el dashboard.
+        return { data: null, error: "No se pudo contactar a TimeZoneDB en este momento" };
+    }
+}
+
+// Conversión de un instante UTC a una zona horaria IANA usando Intl,
+// para mostrar los plazos de las revisiones (no depende de la API externa,
+// que solo se usa para el widget de "hora actual" del dashboard).
+export function formatearEnZona(fechaISO: string, zona: string): string {
+    return new Intl.DateTimeFormat("es-EC", {
+        timeZone: zona,
+        dateStyle: "medium",
+        timeStyle: "short",
+    }).format(new Date(fechaISO));
+}
