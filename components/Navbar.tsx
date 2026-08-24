@@ -62,6 +62,33 @@ export default async function Navbar() {
                     </Link>
                 )}
 
+                {user && (
+                    <Link
+                        href="/dashboard/usuarios"
+                        className="text-muted-foreground hover:text-foreground transition-colors text-sm hidden md:inline"
+                    >
+                        Usuarios
+                    </Link>
+                )}
+                
+                {user && (
+                    <Link
+                        href="/dashboard/notificaciones"
+                        className="text-muted-foreground hover:text-foreground transition-colors text-sm hidden md:inline"
+                    >
+                        Notificaciones
+                    </Link>
+                )}
+
+                {user && (
+                    <Link
+                        href="/dashboard/administracion"
+                        className="text-muted-foreground hover:text-foreground transition-colors text-sm hidden lg:inline"
+                    >
+                        Administración
+                    </Link>
+                )}
+
                 {user ? (
                     <div className="flex items-center gap-4">
                         <div className="text-right leading-tight hidden sm:block">

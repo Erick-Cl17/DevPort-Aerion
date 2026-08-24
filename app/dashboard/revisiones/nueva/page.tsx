@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import { registrarAuditoria } from "@/lib/auditoria";
 import { redirect } from "next/navigation";
 
 export default async function NuevaRevisionPage({
@@ -13,6 +14,7 @@ export default async function NuevaRevisionPage({
     } = await supabase.auth.getUser();
 
     // Los equipos y usuarios que devuelve esto ya vienen filtrados por RLS
+    // (solo los equipos a los que el usuario pertenece o administra).
     const { data: equipos } = await supabase.from("equipos").select("id, nombre, zona_horaria");
     const { data: usuarios } = await supabase.from("profiles").select("id, nombre, apellido");
 
@@ -61,12 +63,30 @@ export default async function NuevaRevisionPage({
             redirect(`/dashboard/revisiones/nueva?error=${encodeURIComponent(error.message)}`);
         }
 
-        // Traza del evento de creación (sección 20 del documento)
+        // Traza del evento de creación
         await supabase.from("revision_eventos").insert({
             revision_id: nueva!.id,
             tipo_evento: "creacion",
             actor_id: user!.id,
         });
+
+        await registrarAuditoria({
+            actorId: user!.id,
+            accion: "crear_revision",
+            recurso: "revisiones",
+            recursoId: nueva!.id,
+            contexto: { codigo, equipoId },
+        });
+
+        // Notifica al responsable, salvo que se haya asignado a sí mismo.
+        if (responsableId !== user!.id) {
+            await supabase.from("notificaciones").insert({
+                evento: "revision_asignada",
+                destinatario_id: responsableId,
+                revision_id: nueva!.id,
+                mensaje: `Se te asignó la revisión ${codigo}: ${titulo}`,
+            });
+        }
 
         redirect(`/dashboard/revisiones/${nueva!.id}`);
     }

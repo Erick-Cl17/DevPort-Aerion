@@ -11,9 +11,18 @@ const SIMULADORES = [
 
 export default function Home() {
     return (
-        <section className="relative overflow-hidden grid-field">
+        <section className="relative min-h-[calc(100vh-73px)] overflow-hidden grid-field">
             <div className="absolute inset-0 bg-gradient-hero pointer-events-none" />
-            <div className="relative max-w-5xl mx-auto px-6 py-28 text-center">
+
+            <div className="relative max-w-2xl mx-auto px-6 pt-20 pb-10 text-center">
+                <div className="flex justify-center mb-6">
+                    <ImagenConBrillo
+                        src={IMAGENES.logo}
+                        alt="Logo AERION"
+                        glowColor="var(--primary)"
+                        className="h-24 w-24"
+                    />
+                </div>
                 <span className="inline-block text-xs tracking-[0.2em] uppercase text-cyan mb-4">
                     Bienvenido a
                 </span>

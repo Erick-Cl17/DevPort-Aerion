@@ -118,6 +118,10 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 - [x] Consumo de API externa (TimeZoneDB) con manejo de error si no responde
 - [x] Subida de evidencias a Supabase Storage 
 - [x] Componente de búsqueda/filtro con `useState` (dashboard, sin consultas nuevas a Supabase)
+- [x] CRUD de Cargos y Roles
+- [x] Reportes de cumplimiento por equipo
+- [x] Pantalla de auditoría (registra creación de equipos, revisiones, cargos, roles, asignaciones)
+- [x] Notificaciones visibles en la interfaz (asignación de revisión, finalización fuera de plazo)
 
 ## Deploy on Vercel
 

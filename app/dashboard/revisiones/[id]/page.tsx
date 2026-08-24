@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase-server";
 import { obtenerContextoUsuario } from "@/lib/data";
 import { formatearEnZona } from "@/lib/timezonedb";
 import { EVIDENCIAS_BUCKET } from "@/lib/storage-config";
+import { registrarAuditoria } from "@/lib/auditoria";
 import { redirect, notFound } from "next/navigation";
 
 export default async function DetalleRevisionPage({
@@ -64,9 +65,17 @@ export default async function DetalleRevisionPage({
             data: { user },
         } = await supabase.auth.getUser();
 
+        const fechaFinReal = new Date().toISOString();
+
+        const { data: rev } = await supabase
+            .from("revisiones")
+            .select("fecha_fin_plazo, creado_por, codigo, titulo")
+            .eq("id", id)
+            .single();
+
         await supabase
             .from("revisiones")
-            .update({ fecha_fin_real: new Date().toISOString() })
+            .update({ fecha_fin_real: fechaFinReal })
             .eq("id", id);
 
         await supabase.from("revision_eventos").insert({
@@ -74,6 +83,23 @@ export default async function DetalleRevisionPage({
             tipo_evento: "finalizacion",
             actor_id: user!.id,
         });
+
+        await registrarAuditoria({
+            actorId: user!.id,
+            accion: "finalizar_revision",
+            recurso: "revisiones",
+            recursoId: id,
+        });
+
+        // Si se finalizó después del plazo, se avisa a quien la creó.
+        if (rev && fechaFinReal > rev.fecha_fin_plazo && rev.creado_por !== user!.id) {
+            await supabase.from("notificaciones").insert({
+                evento: "finalizacion_fuera_plazo",
+                destinatario_id: rev.creado_por,
+                revision_id: id,
+                mensaje: `La revisión ${rev.codigo} se finalizó fuera de plazo`,
+            });
+        }
 
         redirect(`/dashboard/revisiones/${id}`);
     }
@@ -96,6 +122,7 @@ export default async function DetalleRevisionPage({
         redirect(`/dashboard/revisiones/${id}`);
     }
 
+    // Sube el archivo a Storage y guarda en la base de datos SOLO la ruta
     async function subirEvidencia(formData: FormData) {
         "use server";
         const supabase = await createClient();

@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase-server";
 import { obtenerContextoUsuario } from "@/lib/data";
-import { obtenerHoraEnZona, formatearEnZona } from "@/lib/timezonedb";
+import { obtenerHoraEnZona } from "@/lib/timezonedb";
+import { formatearEnZona } from "@/lib/fechas";
+import FiltroRevisiones from "@/components/FiltroRevisiones";
 import Link from "next/link";
 
 const ESTADO_COLOR: Record<string, string> = {
@@ -93,6 +95,9 @@ export default async function DashboardPage() {
                             <th className="text-left px-4 py-3">Estado</th>
                         </tr>
                     </thead>
+
+                    <FiltroRevisiones revisiones={(revisiones ?? []) as any} />
+
                     <tbody>
                         {(revisiones ?? []).map((r: any) => (
                             <tr key={r.id} className="border-t border-border hover:bg-secondary/40">

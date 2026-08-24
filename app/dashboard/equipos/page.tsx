@@ -48,6 +48,7 @@ export default async function EquiposPage({
                             <th className="text-left px-4 py-3">Responsable</th>
                             <th className="text-left px-4 py-3">Zona horaria</th>
                             <th className="text-left px-4 py-3">Estado</th>
+                            <th className="text-left px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -70,11 +71,19 @@ export default async function EquiposPage({
                                         {e.estado}
                                     </span>
                                 </td>
+                                <td className="px-4 py-3 text-right">
+                                    <Link
+                                        href={`/dashboard/equipos/${e.id}/editar`}
+                                        className="text-primary hover:underline text-xs font-semibold"
+                                    >
+                                        Editar
+                                    </Link>
+                                </td>
                             </tr>
                         ))}
                         {(equipos ?? []).length === 0 && (
                             <tr>
-                                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                                     Todavía no perteneces a ningún equipo.
                                 </td>
                             </tr>

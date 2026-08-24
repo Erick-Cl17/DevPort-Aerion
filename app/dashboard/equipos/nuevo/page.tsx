@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase-server";
 import { obtenerContextoUsuario } from "@/lib/data";
+import { registrarAuditoria } from "@/lib/auditoria";
 import { redirect } from "next/navigation";
 
 export default async function NuevoEquipoPage() {
@@ -16,7 +17,7 @@ export default async function NuevoEquipoPage() {
         "use server";
 
         const supabase = await createClient();
-        const { profile } = await obtenerContextoUsuario();
+        const { profile, user } = await obtenerContextoUsuario();
 
         const nombre = ((formData.get("nombre") as string) ?? "").trim();
         const codigo = ((formData.get("codigo") as string) ?? "").trim().toUpperCase();
@@ -32,19 +33,31 @@ export default async function NuevoEquipoPage() {
             );
         }
 
-        const { error } = await supabase.from("equipos").insert({
-            organizacion_id: profile!.organizacion_id,
-            nombre,
-            codigo,
-            zona_horaria: zonaHoraria,
-            responsable_id: responsableId || null,
-        });
+        const { data: nuevo, error } = await supabase
+            .from("equipos")
+            .insert({
+                organizacion_id: profile!.organizacion_id,
+                nombre,
+                codigo,
+                zona_horaria: zonaHoraria,
+                responsable_id: responsableId || null,
+            })
+            .select("id")
+            .single();
 
         if (error) {
             // La política RLS (equipos_admin_org_escribe) rechaza el insert si
             // el usuario no es admin de organización
             redirect(`/dashboard/equipos/nuevo?error=${encodeURIComponent(error.message)}`);
         }
+
+        await registrarAuditoria({
+            actorId: user!.id,
+            accion: "crear_equipo",
+            recurso: "equipos",
+            recursoId: nuevo?.id,
+            contexto: { nombre, codigo },
+        });
 
         redirect("/dashboard/equipos");
     }
