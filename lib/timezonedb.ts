@@ -18,13 +18,21 @@ export async function obtenerHoraEnZona(
     }
 
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout de 5 segundos
+
         const res = await fetch(
             `https://api.timezonedb.com/v2.1/get-time-zone?key=${apiKey}&format=json&by=zone&zone=${encodeURIComponent(
                 zoneName
             )}`,
             // 5 minutos de caché: suficiente para mostrar una hora "actual"
-            { next: { revalidate: 300 } }
+            { 
+                next: { revalidate: 300 },
+                signal: controller.signal,
+            }
         );
+
+        clearTimeout(timeoutId);
 
         if (!res.ok) {
             return { data: null, error: `TimeZoneDB respondió con estado ${res.status}` };
@@ -46,8 +54,11 @@ export async function obtenerHoraEnZona(
             },
             error: null,
         };
-    } catch {
+    } catch (error: any) {
         // La API no respondió a tiempo o no hay conexión — no debe tumbar el dashboard.
+        if (error.name === "AbortError") {
+            return { data: null, error: "TimeZoneDB tardó demasiado en responder" };
+        }
         return { data: null, error: "No se pudo contactar a TimeZoneDB en este momento" };
     }
 }

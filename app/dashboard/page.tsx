@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase-server";
 import { obtenerContextoUsuario } from "@/lib/data";
 import { obtenerHoraEnZona } from "@/lib/timezonedb";
 import { formatearEnZona } from "@/lib/fechas";
+import { obtenerPosicionISS, obtenerAstronautas } from "@/lib/opennotify";
 import FiltroRevisiones from "@/components/FiltroRevisiones";
 import Link from "next/link";
 
@@ -31,7 +32,22 @@ export default async function DashboardPage() {
     }, {});
 
     const zona = profile?.zona_horaria ?? "America/Guayaquil";
-    const { data: horaZona, error: errorZona } = await obtenerHoraEnZona(zona);
+
+    // Ejecutar las 3 llamadas a APIs externas en paralelo (no secuencial)
+    // Esto reduce el tiempo total de carga significativamente
+    const [horaZonaResult, issResult, astrosResult] = await Promise.allSettled([
+        obtenerHoraEnZona(zona),
+        obtenerPosicionISS(),
+        obtenerAstronautas(),
+    ]);
+
+    const horaZona = horaZonaResult.status === "fulfilled" ? horaZonaResult.value.data : null;
+    const errorZona = horaZonaResult.status === "fulfilled" ? horaZonaResult.value.error : "Error al conectar";
+    
+    const iss = issResult.status === "fulfilled" ? issResult.value.data : null;
+    const errorIss = issResult.status === "fulfilled" ? issResult.value.error : "Error al conectar";
+    
+    const astros = astrosResult.status === "fulfilled" ? astrosResult.value.data : null;
 
     const kpis = [
         { label: "Total", value: revisiones?.length ?? 0 },
@@ -62,17 +78,33 @@ export default async function DashboardPage() {
             </div>
 
             {/* Widget que consume la API externa TimeZoneDB */}
-            <div className="panel p-4 mb-8 flex items-center justify-between text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <div className="panel p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-sm">
                 <span className="text-muted-foreground">Hora actual en tu zona ({zona})</span>
                 {horaZona ? (
                     <span className="font-mono text-cyan">
                         {horaZona.formatted} ({horaZona.abbreviation})
                     </span>
                 ) : (
-                    <span className="text-warning">
+                    <span className="text-warning text-xs sm:text-sm">
                         No se pudo obtener la hora desde TimeZoneDB{errorZona ? ` — ${errorZona}` : ""}
                     </span>
                 )}
+            </div>
+
+            <div className="panel p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-sm">
+                <span className="text-muted-foreground">Estación Espacial Internacional</span>
+                {iss ? (
+                    <span className="font-mono text-cyan">
+                        {iss.latitud.toFixed(2)}°, {iss.longitud.toFixed(2)}°
+                        {astros ? ` · ${astros.numero} en órbita` : ""}
+                    </span>
+                ) : (
+                    <span className="text-warning text-xs sm:text-sm">
+                        No se pudo contactar a Open Notify{errorIss ? ` — ${errorIss}` : ""}
+                    </span>
+                )}
+            </div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">

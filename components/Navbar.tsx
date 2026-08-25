@@ -40,54 +40,41 @@ export default async function Navbar() {
                 />
             </Link>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 sm:gap-6">
                 <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
                     Inicio
                 </Link>
-                {user && (
-                    <Link
-                        href="/dashboard"
-                        className="text-muted-foreground hover:text-foreground transition-colors text-sm"
-                    >
-                        Dashboard
-                    </Link>
-                )}
 
-                {user && (
-                    <Link
-                        href="/dashboard/equipos"
-                        className="text-muted-foreground hover:text-foreground transition-colors text-sm"
-                    >
-                        Equipos
-                    </Link>
-                )}
-
-                {user && (
-                    <Link
-                        href="/dashboard/usuarios"
-                        className="text-muted-foreground hover:text-foreground transition-colors text-sm hidden md:inline"
-                    >
-                        Usuarios
-                    </Link>
-                )}
-                
-                {user && (
-                    <Link
-                        href="/dashboard/notificaciones"
-                        className="text-muted-foreground hover:text-foreground transition-colors text-sm hidden md:inline"
-                    >
-                        Notificaciones
-                    </Link>
-                )}
-
-                {user && (
-                    <Link
-                        href="/dashboard/administracion"
-                        className="text-muted-foreground hover:text-foreground transition-colors text-sm hidden lg:inline"
-                    >
-                        Administración
-                    </Link>
-                )}
+                {/* En md+ se ven todos los enlaces en línea; por debajo de
+                    md quedan ocultos y aparecen dentro de MobileNavMenu, en
+                    vez de simplemente desaparecer sin alternativa. */}
+                <div className="hidden md:flex items-center gap-6">
+                    {user && (
+                        <Link href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+                            Dashboard
+                        </Link>
+                    )}
+                    {user && (
+                        <Link href="/dashboard/equipos" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+                            Equipos
+                        </Link>
+                    )}
+                    {user && (
+                        <Link href="/dashboard/usuarios" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+                            Usuarios
+                        </Link>
+                    )}
+                    {user && (
+                        <Link href="/dashboard/notificaciones" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+                            Notificaciones
+                        </Link>
+                    )}
+                    {user && (
+                        <Link href="/dashboard/administracion" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+                            Administración
+                        </Link>
+                    )}
+                </div>
 
                 {user ? (
                     <div className="flex items-center gap-4">
@@ -98,14 +85,22 @@ export default async function Navbar() {
                                 {nivel ? ` · ${nivel}` : ""}
                             </p>
                         </div>
-                        <form action={signOut}>
-                            <button
-                                type="submit"
-                                className="bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                        <div className="flex items-center gap-2">
+                            <Link
+                                href="/dashboard/perfil"
+                                className="bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm font-semibold px-3 py-2 rounded-lg transition-colors"
                             >
-                                Cerrar sesión
-                            </button>
-                        </form>
+                                ⚙️ Perfil
+                            </Link>
+                            <form action={signOut}>
+                                <button
+                                    type="submit"
+                                    className="bg-secondary hover:bg-secondary/80 text-secondary-foreground text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                                >
+                                    Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 ) : (
                     <Link

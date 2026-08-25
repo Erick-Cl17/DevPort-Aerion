@@ -40,6 +40,7 @@ export default async function EquiposPage({
             )}
 
             <div className="panel overflow-hidden">
+              <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead className="bg-surface-raised text-muted-foreground text-xs uppercase tracking-wide">
                         <tr>
@@ -90,6 +91,7 @@ export default async function EquiposPage({
                         )}
                     </tbody>
                 </table>
+              </div>
             </div>
         </section>
     );

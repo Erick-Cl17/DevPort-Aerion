@@ -14,6 +14,7 @@ export default function LoginPage() {
     const searchParams = useSearchParams();
 
     const errorConfirmacion = searchParams.get("error") === "confirmacion_invalida";
+    const cuentaEliminada = searchParams.get("deleted") === "true";
     const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
 
     async function handleSubmit(e: React.FormEvent) {
@@ -27,13 +28,19 @@ export default function LoginPage() {
         setCargando(false);
 
         if (error) {
-            // Supabase devuelve "Email not confirmed" cuando la cuenta
-            // todavía no confirmó su correo — se traduce para el usuario.
-            setError(
-                error.message.includes("Email not confirmed")
-                    ? "Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada."
-                    : error.message
-            );
+            // Detectar el tipo de error específico
+            if (error.message.includes("Email not confirmed")) {
+                setError(
+                    "Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada."
+                );
+            } else if (error.message.includes("Invalid login credentials") || error.message.includes("invalid")) {
+                // Este mensaje aparece cuando el usuario no existe O la contraseña es incorrecta
+                setError(
+                    "El correo o contraseña son incorrectos. Verifica que el usuario exista en la plataforma."
+                );
+            } else {
+                setError(error.message);
+            }
             return;
         }
 
@@ -58,6 +65,12 @@ export default function LoginPage() {
                 {errorConfirmacion && (
                     <p className="bg-warning/10 border border-warning/40 text-warning text-sm rounded-lg px-4 py-3 mb-4">
                         El enlace de confirmación no es válido o ya expiró. Intenta registrarte de nuevo o pide un nuevo enlace.
+                    </p>
+                )}
+
+                {cuentaEliminada && (
+                    <p className="bg-success/10 border border-success/40 text-success text-sm rounded-lg px-4 py-3 mb-4">
+                        Tu cuenta ha sido eliminada correctamente. Si cambias de opinión, puedes crear una nueva cuenta.
                     </p>
                 )}
 

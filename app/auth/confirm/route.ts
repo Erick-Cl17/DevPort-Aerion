@@ -14,13 +14,25 @@ export async function GET(request: NextRequest) {
     if (token_hash && type) {
         const supabase = await createClient();
 
-        const { error } = await supabase.auth.verifyOtp({
+        const { error, data } = await supabase.auth.verifyOtp({
             type,
             token_hash,
         });
 
-        if (!error) {
-            redirect(next);
+        if (!error && data.user) {
+            // Crear el perfil del usuario en la tabla profiles
+            const { error: profileError } = await supabase
+                .from("profiles")
+                .insert({
+                    id: data.user.id,
+                    nombre: data.user.user_metadata?.nombre ?? "",
+                    apellido: data.user.user_metadata?.apellido ?? "",
+                    zona_horaria: "America/Guayaquil",
+                });
+
+            if (!profileError) {
+                redirect(next);
+            }
         }
     }
 
