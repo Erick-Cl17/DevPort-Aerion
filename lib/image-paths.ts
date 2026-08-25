@@ -4,4 +4,5 @@ export const IMAGENES = {
     simHelicopteros: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/sim-heli.jpg",
     simEspacio: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/sim-space.jpg",
     simDrones: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/sim-drone.jpg",
+    simMarino: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/sim-marino.jpg",
 };

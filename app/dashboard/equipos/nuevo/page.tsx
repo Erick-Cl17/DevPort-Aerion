@@ -3,7 +3,12 @@ import { obtenerContextoUsuario } from "@/lib/data";
 import { registrarAuditoria } from "@/lib/auditoria";
 import { redirect } from "next/navigation";
 
-export default async function NuevoEquipoPage() {
+export default async function NuevoEquipoPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ error?: string }>;
+}) {
+    const { error: errorParam } = await searchParams;
     const supabase = await createClient();
     const { profile } = await obtenerContextoUsuario();
 
@@ -65,6 +70,12 @@ export default async function NuevoEquipoPage() {
     return (
         <section className="max-w-xl mx-auto px-6 py-10">
             <h1 className="font-display text-2xl font-bold text-foreground mb-6">Nuevo equipo</h1>
+
+            {errorParam && (
+                <p className="bg-critical/10 border border-critical/40 text-critical text-sm rounded-lg px-4 py-3 mb-4">
+                    {errorParam}
+                </p>
+            )}
 
             <form action={crearEquipo} className="panel p-6 flex flex-col gap-4">
                 <input

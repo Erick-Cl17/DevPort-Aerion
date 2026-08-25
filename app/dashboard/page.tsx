@@ -59,7 +59,7 @@ export default async function DashboardPage() {
     ];
 
     return (
-        <section className="max-w-6xl mx-auto px-6 py-10">
+        <section className="relative max-w-6xl mx-auto px-6 py-10 grid-field">
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="font-display text-2xl font-bold text-foreground">
@@ -109,14 +109,14 @@ export default async function DashboardPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
                 {kpis.map((k) => (
-                    <div key={k.label} className="panel p-4">
+                    <div key={k.label} className="circuit-frame lift p-4">
                         <p className="text-2xl font-display font-bold text-foreground">{k.value}</p>
                         <p className="text-xs text-muted-foreground mt-1">{k.label}</p>
                     </div>
                 ))}
             </div>
 
-            <div className="panel overflow-hidden">
+            <div className="panel edge-scan overflow-hidden">
                 <FiltroRevisiones revisiones={(revisiones ?? []) as any} />
             </div>
         </section>

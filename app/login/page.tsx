@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import PanelBienvenidaAuth from "@/components/PanelBienvenidaAuth";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -13,7 +14,8 @@ export default function LoginPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const errorConfirmacion = searchParams.get("error") === "confirmacion_invalida";
+    const errorParam = searchParams.get("error");
+    const errorConfirmacion = errorParam === "confirmacion_invalida";
     const cuentaEliminada = searchParams.get("deleted") === "true";
     const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
 
@@ -56,7 +58,10 @@ export default function LoginPage() {
                 aria-hidden
                 className="absolute top-1/4 left-1/2 -translate-x-1/2 h-56 w-56 rounded-full bg-cyan/20 blur-3xl animate-glow-pulse pointer-events-none"
             />
-            <div className="relative w-full max-w-md panel p-8">
+            <div className="relative w-full max-w-4xl panel edge-scan p-2 sm:p-3">
+                <div className="grid overflow-hidden rounded-2xl md:grid-cols-2">
+                <PanelBienvenidaAuth />
+                <div className="p-6 sm:p-8">
                 <h1 className="font-display text-2xl font-bold text-foreground mb-2">
                     Iniciar sesión
                 </h1>
@@ -65,6 +70,15 @@ export default function LoginPage() {
                 {errorConfirmacion && (
                     <p className="bg-warning/10 border border-warning/40 text-warning text-sm rounded-lg px-4 py-3 mb-4">
                         El enlace de confirmación no es válido o ya expiró. Intenta registrarte de nuevo o pide un nuevo enlace.
+                    </p>
+                )}
+
+                {/* Cualquier otro ?error= (ej: fallo creando el perfil u organización
+                    tras confirmar la cuenta) se muestra tal cual, en vez de perderse
+                    porque no coincidía con "confirmacion_invalida". */}
+                {errorParam && !errorConfirmacion && (
+                    <p className="bg-warning/10 border border-warning/40 text-warning text-sm rounded-lg px-4 py-3 mb-4">
+                        {errorParam}
                     </p>
                 )}
 
@@ -111,6 +125,8 @@ export default function LoginPage() {
                         Regístrate
                     </Link>
                 </p>
+                </div>
+                </div>
             </div>
         </section>
     );

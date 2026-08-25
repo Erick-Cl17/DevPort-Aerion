@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
 import { passwordCumpleTodo } from "@/lib/password-rules";
 import PasswordChecklist from "@/components/PasswordChecklist";
+import PanelBienvenidaAuth from "@/components/PanelBienvenidaAuth";
 
 export default function RegisterPage() {
     const [nombre, setNombre] = useState("");
@@ -16,6 +17,13 @@ export default function RegisterPage() {
     const [enviado, setEnviado] = useState(false);
     const [cargando, setCargando] = useState(false);
 
+    // "crear": el usuario funda su propia organización y queda como su admin.
+    // "unirse": el usuario entra a una organización ya existente con el
+    // código de invitación que le dio su admin.
+    const [modo, setModo] = useState<"crear" | "unirse">("crear");
+    const [nombreOrganizacion, setNombreOrganizacion] = useState("");
+    const [codigoInvitacion, setCodigoInvitacion] = useState("");
+
     const contraseñaValida = passwordCumpleTodo(password);
     const coinciden = password.length > 0 && password === confirmPassword;
     // trim() en los tres campos de texto: " " (solo espacios) no debe
@@ -25,7 +33,8 @@ export default function RegisterPage() {
         apellido.trim().length > 0 &&
         email.trim().length > 0 &&
         contraseñaValida &&
-        coinciden;
+        coinciden &&
+        (modo === "crear" ? nombreOrganizacion.trim().length > 0 : codigoInvitacion.trim().length > 0);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -36,14 +45,21 @@ export default function RegisterPage() {
         setCargando(true);
         const supabase = createClient();
 
-        // El nombre/apellido viajan en options.data para que el trigger
-        // handle_new_user() (ver AERION_Script_SQL.sql) los copie a profiles.
-        // emailRedirectTo apunta al Route Handler que confirma la cuenta.
+        // Todo esto viaja en options.data (user_metadata) porque, hasta que
+        // el usuario confirme el correo, no hay sesión activa — el Route
+        // Handler de /auth/confirm es quien realmente crea la organización
+        // (o la busca por código) y el perfil, usando estos mismos datos.
         const { error } = await supabase.auth.signUp({
             email: email.trim(),
             password,
             options: {
-                data: { nombre: nombre.trim(), apellido: apellido.trim() },
+                data: {
+                    nombre: nombre.trim(),
+                    apellido: apellido.trim(),
+                    modo,
+                    nombre_organizacion: modo === "crear" ? nombreOrganizacion.trim() : undefined,
+                    codigo_invitacion: modo === "unirse" ? codigoInvitacion.trim().toUpperCase() : undefined,
+                },
                 emailRedirectTo: `${window.location.origin}/auth/confirm`,
             },
         });
@@ -76,7 +92,10 @@ export default function RegisterPage() {
 
     return (
         <section className="min-h-[70vh] flex items-center justify-center px-4 py-12">
-            <div className="w-full max-w-md panel p-8">
+            <div className="w-full max-w-5xl panel edge-scan p-2 sm:p-3">
+                <div className="grid overflow-hidden rounded-2xl md:grid-cols-2">
+                <PanelBienvenidaAuth registro />
+                <div className="p-6 sm:p-8">
                 <h1 className="font-display text-2xl font-bold text-foreground mb-2">
                     Crear cuenta
                 </h1>
@@ -113,6 +132,50 @@ export default function RegisterPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         className="bg-secondary text-foreground rounded-lg px-4 py-3 border border-border focus:outline-none focus:border-primary"
                     />
+
+                    {/* Toggle: fundar organización nueva vs. unirse a una existente */}
+                    <div className="grid grid-cols-2 gap-2 bg-secondary rounded-lg p-1 border border-border">
+                        <button
+                            type="button"
+                            onClick={() => setModo("crear")}
+                            className={`py-2 rounded-md text-sm font-semibold transition-colors ${
+                                modo === "crear"
+                                    ? "bg-gradient-accent text-primary-foreground"
+                                    : "text-muted-foreground"
+                            }`}
+                        >
+                            Crear organización
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setModo("unirse")}
+                            className={`py-2 rounded-md text-sm font-semibold transition-colors ${
+                                modo === "unirse"
+                                    ? "bg-gradient-accent text-primary-foreground"
+                                    : "text-muted-foreground"
+                            }`}
+                        >
+                            Unirme con código
+                        </button>
+                    </div>
+
+                    {modo === "crear" ? (
+                        <input
+                            type="text"
+                            placeholder="Nombre de tu organización"
+                            value={nombreOrganizacion}
+                            onChange={(e) => setNombreOrganizacion(e.target.value)}
+                            className="bg-secondary text-foreground rounded-lg px-4 py-3 border border-border focus:outline-none focus:border-primary"
+                        />
+                    ) : (
+                        <input
+                            type="text"
+                            placeholder="Código de invitación (ej: A1B2C3D4)"
+                            value={codigoInvitacion}
+                            onChange={(e) => setCodigoInvitacion(e.target.value.toUpperCase())}
+                            className="bg-secondary text-foreground rounded-lg px-4 py-3 border border-border focus:outline-none focus:border-primary uppercase"
+                        />
+                    )}
 
                     <input
                         type="password"
@@ -151,6 +214,8 @@ export default function RegisterPage() {
                         Inicia sesión
                     </Link>
                 </p>
+                </div>
+                </div>
             </div>
         </section>
     );

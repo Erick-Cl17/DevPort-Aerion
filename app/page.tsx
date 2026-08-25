@@ -1,17 +1,12 @@
 import TransitionLink from "@/components/TransitionLink";
 import ImagenConBrillo from "@/components/ImagenConBrillo";
+import SimuladoresGrid from "@/components/SimuladoresGrid";
 import { IMAGENES } from "@/lib/image-paths";
-
-const SIMULADORES = [
-    { nombre: "Aviación", src: IMAGENES.simAviacion, glow: "var(--primary)" },
-    { nombre: "Helicópteros", src: IMAGENES.simHelicopteros, glow: "var(--cyan)" },
-    { nombre: "Espacio", src: IMAGENES.simEspacio, glow: "var(--accent)" },
-    { nombre: "Drones", src: IMAGENES.simDrones, glow: "var(--success)" },
-];
+import { SIMULADORES } from "@/lib/simuladores";
 
 export default function Home() {
     return (
-        <section className="relative min-h-[calc(100vh-73px)] overflow-hidden grid-field">
+        <section className="relative min-h-[calc(100vh-73px)] grid-field">
             <div className="absolute inset-0 bg-gradient-hero pointer-events-none" />
 
             <div className="relative max-w-2xl mx-auto px-6 pt-20 pb-10 text-center">
@@ -80,20 +75,7 @@ export default function Home() {
                 ))}
             </div>
 
-            <div className="relative max-w-4xl mx-auto px-6 pb-24 grid grid-cols-2 sm:grid-cols-4 gap-6">
-                {SIMULADORES.map((sim) => (
-                    <div key={sim.nombre} className="flex flex-col items-center gap-3">
-                        <ImagenConBrillo
-                            src={sim.src}
-                            alt={sim.nombre}
-                            glowColor={sim.glow}
-                            className="h-20 w-20 sm:h-24 sm:w-24"
-                        />
-                        <span className="text-xs text-muted-foreground">{sim.nombre}</span>
-                    </div>
-                ))}
-            </div>
-
+            <SimuladoresGrid simuladores={SIMULADORES} />
         </section>
     );
 }

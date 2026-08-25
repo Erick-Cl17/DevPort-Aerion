@@ -5,6 +5,7 @@ import Link from "next/link";
 
 const ENLACES = [
     { href: "/dashboard", label: "Dashboard" },
+    { href: "/simuladores", label: "Simuladores" },
     { href: "/dashboard/equipos", label: "Equipos" },
     { href: "/dashboard/usuarios", label: "Usuarios" },
     { href: "/dashboard/notificaciones", label: "Notificaciones" },

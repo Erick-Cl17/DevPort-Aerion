@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase-server";
 import { obtenerContextoUsuario } from "@/lib/data";
 import { IMAGENES } from "@/lib/image-paths";
 import { redirect } from "next/navigation";
+import MobileNavMenu from "@/components/MobileNavMenu";
+import SelectorIdioma from "@/components/SelectorIdioma";
 
 // Aquí se agrega además el nombre de la organización y el nivel de rol más alto del 
 // usuario, porque en AERION el menú debe reflejar el alcance (organización/equipo)
@@ -55,6 +57,11 @@ export default async function Navbar() {
                         </Link>
                     )}
                     {user && (
+                        <Link href="/simuladores" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+                            Simuladores
+                        </Link>
+                    )}
+                    {user && (
                         <Link href="/dashboard/equipos" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
                             Equipos
                         </Link>
@@ -75,6 +82,10 @@ export default async function Navbar() {
                         </Link>
                     )}
                 </div>
+
+                {user && <MobileNavMenu />}
+
+                <SelectorIdioma />
 
                 {user ? (
                     <div className="flex items-center gap-4">
