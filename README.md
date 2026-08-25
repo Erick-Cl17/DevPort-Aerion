@@ -85,19 +85,6 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Credenciales de prueba
 
-Contraseña única para las 6 cuentas: **`AerionQ8#Zx`**
-(se crean con `AERION_Cuentas_Prueba.sql`, todas dentro de "Organización de
-Prueba" / "Equipo Alpha")
-
-| Rol | Correo |
-|---|---|
-| Superadmin | superadmin@aerion-test.com |
-| Admin. organización | adminorg@aerion-test.com |
-| Admin. equipo | adminequipo@aerion-test.com |
-| Supervisor | supervisor@aerion-test.com |
-| Revisor | revisor@aerion-test.com |
-| Consulta | consulta@aerion-test.com |
-
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

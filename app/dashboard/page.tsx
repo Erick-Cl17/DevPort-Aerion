@@ -85,46 +85,7 @@ export default async function DashboardPage() {
             </div>
 
             <div className="panel overflow-hidden">
-                <table className="w-full text-sm">
-                    <thead className="bg-surface-raised text-muted-foreground text-xs uppercase tracking-wide">
-                        <tr>
-                            <th className="text-left px-4 py-3">Código</th>
-                            <th className="text-left px-4 py-3">Título</th>
-                            <th className="text-left px-4 py-3">Equipo</th>
-                            <th className="text-left px-4 py-3">Plazo (fin)</th>
-                            <th className="text-left px-4 py-3">Estado</th>
-                        </tr>
-                    </thead>
-
-                    <FiltroRevisiones revisiones={(revisiones ?? []) as any} />
-
-                    <tbody>
-                        {(revisiones ?? []).map((r: any) => (
-                            <tr key={r.id} className="border-t border-border hover:bg-secondary/40">
-                                <td className="px-4 py-3">
-                                    <Link href={`/dashboard/revisiones/${r.id}`} className="text-primary hover:underline">
-                                        {r.codigo}
-                                    </Link>
-                                </td>
-                                <td className="px-4 py-3 text-foreground">{r.titulo}</td>
-                                <td className="px-4 py-3 text-muted-foreground">{r.equipos?.nombre}</td>
-                                <td className="px-4 py-3 text-muted-foreground">
-                                    {formatearEnZona(r.fecha_fin_plazo, r.zona_horaria_plazo)}
-                                </td>
-                                <td className={`px-4 py-3 font-medium ${ESTADO_COLOR[r.estado] ?? ""}`}>
-                                    {r.estado}
-                                </td>
-                            </tr>
-                        ))}
-                        {(revisiones ?? []).length === 0 && (
-                            <tr>
-                                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                                    Todavía no tienes revisiones visibles en tu alcance.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                <FiltroRevisiones revisiones={(revisiones ?? []) as any} />
             </div>
         </section>
     );

@@ -7,11 +7,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "node scripts/seed-cuentas-prueba.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
+    "datenv": "^0.0.0",
+    "dotenv": "^17.4.2",
     "next": "16.3.2",
     "react": "19.2.8",
     "react-dom": "19.2.8"

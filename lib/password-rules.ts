@@ -62,6 +62,25 @@ export const PASSWORD_RULES: PasswordRule[] = [
             return true;
         },
     },
+    {
+        id: "keyboard",
+        label: "Evita patrones de teclado (qwerty, asdf...) y vocales seguidas",
+        test: (v) => {
+            if (v.length === 0) return false;
+            const s = v.toLowerCase();
+            const patrones = [
+                "qwerty",
+                "qwertyuiop",
+                "asdfgh",
+                "asdfghjkl",
+                "zxcvbn",
+                "zxcvbnm",
+                "aeiou",
+                "uoiea",
+            ];
+            return !patrones.some((p) => s.includes(p) || s.includes([...p].reverse().join("")));
+        },
+    },
 ];
 
 export function passwordCumpleTodo(value: string): boolean {

@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, Fragment } from "react";
 import Link from "next/link";
-import { formatearEnZona } from "@/lib/timezonedb";
+import { formatearEnZona } from "@/lib/fechas";
 
 const ESTADO_COLOR: Record<string, string> = {
     "No iniciada": "text-muted-foreground",
@@ -23,6 +23,50 @@ type Revision = {
     equipos: { nombre: string } | null;
 };
 
+// Componente para los controles de filtro
+export function FiltroControls({
+    busqueda,
+    setBusqueda,
+    estado,
+    setEstado,
+    revisiones,
+}: {
+    busqueda: string;
+    setBusqueda: (s: string) => void;
+    estado: string;
+    setEstado: (s: string) => void;
+    revisiones: Revision[];
+}) {
+    const estadosDisponibles = useMemo(
+        () => Array.from(new Set(revisiones.map((r) => r.estado))),
+        [revisiones]
+    );
+
+    return (
+        <div className="flex flex-col sm:flex-row gap-3 p-4 border-b border-border">
+            <input
+                type="text"
+                placeholder="Buscar por código, título o equipo…"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="flex-1 bg-secondary text-foreground rounded-lg px-4 py-2 text-sm border border-border focus:outline-none focus:border-primary"
+            />
+            <select
+                value={estado}
+                onChange={(e) => setEstado(e.target.value)}
+                className="bg-secondary text-foreground rounded-lg px-4 py-2 text-sm border border-border focus:outline-none focus:border-primary"
+            >
+                <option value="todos">Todos los estados</option>
+                {estadosDisponibles.map((e) => (
+                    <option key={e} value={e}>
+                        {e}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
+}
+
 // Client Component: recibe los datos YA CARGADOS por el Server Component
 // del dashboard (una sola consulta a Supabase) y filtra en el navegador
 // con useState — así escribir en el buscador o cambiar el estado no
@@ -30,11 +74,6 @@ type Revision = {
 export default function FiltroRevisiones({ revisiones }: { revisiones: Revision[] }) {
     const [busqueda, setBusqueda] = useState("");
     const [estado, setEstado] = useState("todos");
-
-    const estadosDisponibles = useMemo(
-        () => Array.from(new Set(revisiones.map((r) => r.estado))),
-        [revisiones]
-    );
 
     const filtradas = useMemo(() => {
         const texto = busqueda.trim().toLowerCase();
@@ -50,29 +89,14 @@ export default function FiltroRevisiones({ revisiones }: { revisiones: Revision[
     }, [revisiones, busqueda, estado]);
 
     return (
-        <div className="panel overflow-hidden">
-            <div className="flex flex-col sm:flex-row gap-3 p-4 border-b border-border">
-                <input
-                    type="text"
-                    placeholder="Buscar por código, título o equipo…"
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    className="flex-1 bg-secondary text-foreground rounded-lg px-4 py-2 text-sm border border-border focus:outline-none focus:border-primary"
-                />
-                <select
-                    value={estado}
-                    onChange={(e) => setEstado(e.target.value)}
-                    className="bg-secondary text-foreground rounded-lg px-4 py-2 text-sm border border-border focus:outline-none focus:border-primary"
-                >
-                    <option value="todos">Todos los estados</option>
-                    {estadosDisponibles.map((e) => (
-                        <option key={e} value={e}>
-                            {e}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
+        <Fragment>
+            <FiltroControls
+                busqueda={busqueda}
+                setBusqueda={setBusqueda}
+                estado={estado}
+                setEstado={setEstado}
+                revisiones={revisiones}
+            />
             <table className="w-full text-sm">
                 <thead className="bg-surface-raised text-muted-foreground text-xs uppercase tracking-wide">
                     <tr>
@@ -112,6 +136,6 @@ export default function FiltroRevisiones({ revisiones }: { revisiones: Revision[
                     )}
                 </tbody>
             </table>
-        </div>
+        </Fragment>
     );
 }
