@@ -27,7 +27,7 @@ export default function ImagenConBrillo({
         <div className={`relative ${className}`}>
             <div
                 aria-hidden
-                className="absolute -inset-3 rounded-full blur-2xl opacity-60 animate-glow-pulse pointer-events-none"
+                className="absolute inset-0 rounded-full blur-lg opacity-30 animate-glow-pulse pointer-events-none -z-10"
                 style={{ backgroundColor: glowColor }}
             />
             <Image

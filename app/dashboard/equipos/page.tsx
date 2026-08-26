@@ -1,12 +1,13 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
+import BusquedaPantalla from "@/components/BusquedaPantalla";
 
 export default async function EquiposPage({
     searchParams,
 }: {
-    searchParams: Promise<{ error?: string }>;
+    searchParams: Promise<{ error?: string; q?: string }>;
 }) {
-    const { error: errorParam } = await searchParams;
+    const { error: errorParam, q = "" } = await searchParams;
     const supabase = await createClient();
 
     // RLS ya filtra: solo se ven los equipos a los que el usuario pertenece
@@ -14,7 +15,8 @@ export default async function EquiposPage({
     const { data: equipos } = await supabase
         .from("equipos")
         .select("id, nombre, codigo, estado, zona_horaria, responsable:responsable_id(nombre, apellido)")
-        .order("nombre", { ascending: true });
+        .order("nombre", { ascending: true })
+        .ilike("nombre", `%${q}%`);
 
     return (
         <section className="max-w-4xl mx-auto px-6 py-10">
@@ -38,6 +40,8 @@ export default async function EquiposPage({
                     {errorParam}
                 </p>
             )}
+
+            <BusquedaPantalla placeholder="Buscar equipo por nombre" value={q} />
 
             <div className="panel overflow-hidden">
               <div className="overflow-x-auto">

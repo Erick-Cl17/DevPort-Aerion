@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar"; 
+import LanguageRuntime from "@/components/LanguageRuntime";
+import AerionSidebar from "@/components/AerionSidebar";
 
 export const metadata: Metadata = {
     title: "AERION",
@@ -16,8 +18,10 @@ export default function RootLayout({
     return (
         <html lang="es" className="dark">
             <body>
+                <AerionSidebar />
                 <Navbar />
-                <main className="min-h-[calc(100vh-73px)]">{children}</main>
+                <LanguageRuntime />
+                <main className="min-h-[calc(100vh-73px)] lg:ml-64">{children}</main>
             </body>
         </html>
     );

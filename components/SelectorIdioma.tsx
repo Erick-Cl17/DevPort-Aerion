@@ -1,15 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const IDIOMAS = [
     { codigo: "ES", nombre: "Español" },
     { codigo: "EN", nombre: "English" },
+    { codigo: "ZH", nombre: "中文" },
 ];
 
 export default function SelectorIdioma() {
     const [abierto, setAbierto] = useState(false);
-    const [idioma, setIdioma] = useState(IDIOMAS[0]);
+    const [idioma, setIdioma] = useState(() => {
+        if (typeof window === "undefined") return IDIOMAS[0];
+        return IDIOMAS.find((opcion) => opcion.codigo === window.localStorage.getItem("aerion-idioma")) ?? IDIOMAS[0];
+    });
+
+    useEffect(() => {
+        const codigo = idioma.codigo;
+        window.localStorage.setItem("aerion-idioma", codigo);
+        document.cookie = `aerion-idioma=${codigo}; path=/; max-age=31536000; SameSite=Lax`;
+        document.documentElement.lang = codigo === "ES" ? "es" : codigo === "EN" ? "en" : "zh";
+        window.dispatchEvent(new CustomEvent("aerion:idioma", { detail: codigo }));
+    }, [idioma]);
+
+    function cambiarIdioma(opcion: (typeof IDIOMAS)[number]) {
+        setIdioma(opcion);
+        setAbierto(false);
+    }
 
     return (
         <div className="relative hidden lg:block">
@@ -32,10 +49,7 @@ export default function SelectorIdioma() {
                         <button
                             key={opcion.codigo}
                             type="button"
-                            onClick={() => {
-                                setIdioma(opcion);
-                                setAbierto(false);
-                            }}
+                            onClick={() => cambiarIdioma(opcion)}
                             className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-surface-raised ${
                                 idioma.codigo === opcion.codigo ? "text-cyan" : "text-foreground"
                             }`}

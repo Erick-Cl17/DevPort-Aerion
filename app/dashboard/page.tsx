@@ -1,124 +1,64 @@
+import Link from "next/link";
+import { Activity, AlertTriangle, ClipboardCheck, FolderKanban, ShieldAlert, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase-server";
 import { obtenerContextoUsuario } from "@/lib/data";
-import { obtenerHoraEnZona } from "@/lib/timezonedb";
-import { formatearEnZona } from "@/lib/fechas";
-import { obtenerPosicionISS, obtenerAstronautas } from "@/lib/opennotify";
-import FiltroRevisiones from "@/components/FiltroRevisiones";
-import Link from "next/link";
-
-const ESTADO_COLOR: Record<string, string> = {
-    "No iniciada": "text-muted-foreground",
-    "En proceso": "text-cyan",
-    "Finalizada · En plazo": "text-success",
-    "Finalizada · Fuera de plazo": "text-warning",
-    "Vencida / No realizada": "text-critical",
-    Cancelada: "text-muted-foreground",
-};
 
 export default async function DashboardPage() {
+    const { user, profile } = await obtenerContextoUsuario();
     const supabase = await createClient();
-    const { profile } = await obtenerContextoUsuario();
+    const nombre = profile?.nombre ?? user?.email?.split("@")[0] ?? "Usuario";
 
-    // (ver AERION_Script_SQL.sql) — aquí solo se agrupa para el KPI, sin
-    // volver a pedir el usuario ni el perfil (ya vinieron del contexto).
-    const { data: revisiones } = await supabase
-        .from("revisiones_estado")
-        .select("id, codigo, titulo, estado, fecha_fin_plazo, zona_horaria_plazo, equipos(nombre)")
-        .order("fecha_fin_plazo", { ascending: true });
-
-    const conteo = (revisiones ?? []).reduce<Record<string, number>>((acc, r) => {
-        acc[r.estado] = (acc[r.estado] ?? 0) + 1;
-        return acc;
-    }, {});
-
-    const zona = profile?.zona_horaria ?? "America/Guayaquil";
-
-    // Ejecutar las 3 llamadas a APIs externas en paralelo (no secuencial)
-    // Esto reduce el tiempo total de carga significativamente
-    const [horaZonaResult, issResult, astrosResult] = await Promise.allSettled([
-        obtenerHoraEnZona(zona),
-        obtenerPosicionISS(),
-        obtenerAstronautas(),
+    const [{ data: revisiones }, { count: equipos }, { count: usuarios }, { data: riesgos }, { data: vulnerabilidades }, { data: auditoria }] = await Promise.all([
+        supabase.from("revisiones_estado").select("id, codigo, titulo, estado, fecha_fin_real, fecha_fin_plazo").order("fecha_fin_plazo", { ascending: false }).limit(8),
+        supabase.from("equipos").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("organizacion_id", profile?.organizacion_id ?? ""),
+        supabase.from("riesgos").select("id, codigo, nombre, nivel_inherente, estado").eq("organizacion_id", profile?.organizacion_id ?? "").order("nivel_inherente", { ascending: false }).limit(5),
+        supabase.from("vulnerabilidades").select("id, severidad, estado").eq("organizacion_id", profile?.organizacion_id ?? ""),
+        supabase.from("auditoria").select("accion, recurso, fecha_hora, actor:actor_id(nombre, apellido)").order("fecha_hora", { ascending: false }).limit(5),
     ]);
 
-    const horaZona = horaZonaResult.status === "fulfilled" ? horaZonaResult.value.data : null;
-    const errorZona = horaZonaResult.status === "fulfilled" ? horaZonaResult.value.error : "Error al conectar";
-    
-    const iss = issResult.status === "fulfilled" ? issResult.value.data : null;
-    const errorIss = issResult.status === "fulfilled" ? issResult.value.error : "Error al conectar";
-    
-    const astros = astrosResult.status === "fulfilled" ? astrosResult.value.data : null;
+    const listaRevisiones = revisiones ?? [];
+    const listaRiesgos = riesgos ?? [];
+    const listaVulnerabilidades = vulnerabilidades ?? [];
+    const listaAuditoria = (auditoria ?? []) as Array<{ fecha_hora: string; accion: string; recurso: string }>;
+    const finalizadas = listaRevisiones.filter((revision) => revision.fecha_fin_real);
+    const enPlazo = finalizadas.filter((revision) => revision.fecha_fin_real! <= revision.fecha_fin_plazo).length;
+    const cumplimiento = finalizadas.length ? Math.round((enPlazo / finalizadas.length) * 100) : 0;
+    const riesgosCriticos = listaRiesgos.filter((riesgo) => riesgo.nivel_inherente >= 15).length;
+    const vulnerabilidadesAbiertas = listaVulnerabilidades.filter((vulnerabilidad) => vulnerabilidad.estado !== "Cerrada").length;
 
-    const kpis = [
-        { label: "Total", value: revisiones?.length ?? 0 },
-        { label: "No iniciada", value: conteo["No iniciada"] ?? 0 },
-        { label: "En proceso", value: conteo["En proceso"] ?? 0 },
-        { label: "Finalizada en plazo", value: conteo["Finalizada · En plazo"] ?? 0 },
-        { label: "Fuera de plazo", value: conteo["Finalizada · Fuera de plazo"] ?? 0 },
-        { label: "Vencidas", value: conteo["Vencida / No realizada"] ?? 0 },
-    ];
+    return <section className="min-h-[calc(100vh-73px)] bg-background px-5 py-7 sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-7xl space-y-5">
+            <header><p className="label-mono">Centro de operaciones</p><h1 className="mt-1 font-display text-2xl font-bold text-foreground sm:text-3xl">Buenos días, {nombre}</h1><p className="mt-1 text-sm text-muted-foreground">Resumen operativo de tu organización.</p></header>
 
-    return (
-        <section className="relative max-w-6xl mx-auto px-6 py-10 grid-field">
-            <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="font-display text-2xl font-bold text-foreground">
-                        Hola, {profile?.nombre ?? "usuario"}
-                    </h1>
-                    <p className="text-muted-foreground text-sm">
-                        Resumen de revisiones según tu alcance
-                    </p>
-                </div>
-                <Link
-                    href="/dashboard/revisiones/nueva"
-                    className="bg-gradient-accent text-primary-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-                >
-                    + Nueva revisión
-                </Link>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <Kpi label="Revisiones" value={listaRevisiones.length} detail="Registros recientes" icon={<ClipboardCheck />} />
+                <Kpi label="Riesgos críticos" value={riesgosCriticos} detail="Nivel inherente ≥ 15" icon={<ShieldAlert />} tone="critical" />
+                <Kpi label="Vulnerabilidades" value={vulnerabilidadesAbiertas} detail="Pendientes de cierre" icon={<AlertTriangle />} tone="warning" />
+                <Kpi label="Cumplimiento" value={`${cumplimiento}%`} detail="Revisiones finalizadas" icon={<Activity />} tone="success" />
             </div>
 
-            {/* Widget que consume la API externa TimeZoneDB */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-            <div className="panel p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-sm">
-                <span className="text-muted-foreground">Hora actual en tu zona ({zona})</span>
-                {horaZona ? (
-                    <span className="font-mono text-cyan">
-                        {horaZona.formatted} ({horaZona.abbreviation})
-                    </span>
-                ) : (
-                    <span className="text-warning text-xs sm:text-sm">
-                        No se pudo obtener la hora desde TimeZoneDB{errorZona ? ` — ${errorZona}` : ""}
-                    </span>
-                )}
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <Mini label="Proyectos activos" value={equipos ?? 0} icon={<FolderKanban />} href="/dashboard/equipos" />
+                <Mini label="Usuarios" value={usuarios ?? 0} icon={<Users />} href="/dashboard/usuarios" />
+                <Mini label="Riesgos registrados" value={listaRiesgos.length} icon={<ShieldAlert />} href="/dashboard/proyecto" />
+                <Mini label="Acciones recientes" value={(auditoria ?? []).length} icon={<Activity />} href="/dashboard/auditoria" />
             </div>
 
-            <div className="panel p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-sm">
-                <span className="text-muted-foreground">Estación Espacial Internacional</span>
-                {iss ? (
-                    <span className="font-mono text-cyan">
-                        {iss.latitud.toFixed(2)}°, {iss.longitud.toFixed(2)}°
-                        {astros ? ` · ${astros.numero} en órbita` : ""}
-                    </span>
-                ) : (
-                    <span className="text-warning text-xs sm:text-sm">
-                        No se pudo contactar a Open Notify{errorIss ? ` — ${errorIss}` : ""}
-                    </span>
-                )}
-            </div>
+            <div className="grid gap-5 lg:grid-cols-[1.3fr_0.7fr]">
+                <div className="panel corner-ticks p-5"><SectionTitle kicker="Exposición" title="Riesgo por nivel" /><div className="space-y-4">{["Crítico", "Alto", "Medio", "Bajo"].map((nivel, indice) => { const cantidad = listaRiesgos.filter((riesgo) => nivel === "Crítico" ? riesgo.nivel_inherente >= 15 : nivel === "Alto" ? riesgo.nivel_inherente >= 9 && riesgo.nivel_inherente < 15 : nivel === "Medio" ? riesgo.nivel_inherente >= 4 && riesgo.nivel_inherente < 9 : riesgo.nivel_inherente < 4).length; const colores = ["bg-critical", "bg-warning", "bg-cyan", "bg-success"]; return <div key={nivel}><div className="mb-1 flex justify-between text-xs text-muted-foreground"><span>{nivel}</span><span>{cantidad}</span></div><div className="h-2 rounded-full bg-secondary"><div className={`h-full rounded-full ${colores[indice]}`} style={{ width: `${listaRiesgos.length ? Math.max(4, cantidad / listaRiesgos.length * 100) : 0}%` }} /></div></div>; })}</div></div>
+                <div className="panel corner-ticks p-5"><SectionTitle kicker="Revisiones" title="Últimas ejecuciones" /><div className="space-y-2">{listaRevisiones.slice(0, 4).map((revision) => <Link key={revision.id} href={`/dashboard/revisiones/${revision.id}`} className="block rounded-xl border border-border bg-background/35 p-3 transition hover:border-cyan/50"><p className="font-mono text-[0.6rem] text-muted-foreground">{revision.codigo}</p><p className="text-sm text-foreground">{revision.titulo}</p><p className="mt-1 text-xs text-cyan">{revision.estado}</p></Link>)}{!listaRevisiones.length && <Empty text="No hay revisiones registradas." />}</div></div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
-                {kpis.map((k) => (
-                    <div key={k.label} className="circuit-frame lift p-4">
-                        <p className="text-2xl font-display font-bold text-foreground">{k.value}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{k.label}</p>
-                    </div>
-                ))}
+            <div className="grid gap-5 lg:grid-cols-2">
+                <div className="panel p-5"><SectionTitle kicker="Hallazgos" title="Riesgos recientes" /><div className="space-y-2">{listaRiesgos.map((riesgo) => <Link key={riesgo.id} href={`/dashboard/proyecto/riesgos/${riesgo.id}/editar`} className="flex items-center justify-between rounded-xl border border-border p-3 hover:border-cyan/50"><span><small className="font-mono text-[0.6rem] text-muted-foreground">{riesgo.codigo}</small><span className="block text-sm text-foreground">{riesgo.nombre}</span></span><span className="font-mono text-xs text-critical">{riesgo.nivel_inherente}</span></Link>)}{!listaRiesgos.length && <Empty text="No hay riesgos registrados." />}</div></div>
+                <div className="panel p-5"><SectionTitle kicker="Auditoría" title="Actividad reciente" /><div className="space-y-3">{listaAuditoria.map((registro, indice) => <div key={`${registro.fecha_hora}-${indice}`} className="border-l border-cyan/40 pl-3"><p className="font-mono text-[0.6rem] text-muted-foreground">{new Date(registro.fecha_hora).toLocaleString("es-EC")}</p><p className="text-sm text-foreground">{registro.accion} en {registro.recurso}</p></div>)}{!listaAuditoria.length && <Empty text="No hay actividad registrada." />}</div></div>
             </div>
-
-            <div className="panel edge-scan overflow-hidden">
-                <FiltroRevisiones revisiones={(revisiones ?? []) as any} />
-            </div>
-        </section>
-    );
+        </div>
+    </section>;
 }
+
+function Kpi({ label, value, detail, icon, tone = "cyan" }: { label: string; value: string | number; detail: string; icon: React.ReactNode; tone?: "cyan" | "critical" | "warning" | "success" }) { return <div className="panel circuit-frame p-5"><div className="flex justify-between"><p className="label-mono">{label}</p><span className={`text-${tone}`} aria-hidden>{icon}</span></div><p className="mt-3 font-display text-3xl font-bold text-foreground">{value}</p><p className={`mt-2 text-xs text-${tone}`}>{detail}</p></div>; }
+function Mini({ label, value, icon, href }: { label: string; value: number; icon: React.ReactNode; href: string }) { return <Link href={href} className="flex items-center justify-between rounded-xl border border-border bg-surface/45 px-4 py-3 transition hover:border-cyan/50"><span><span className="label-mono">{label}</span><strong className="mt-1 block font-display text-xl text-foreground">{value}</strong></span><span className="text-muted-foreground">{icon}</span></Link>; }
+function SectionTitle({ kicker, title }: { kicker: string; title: string }) { return <div className="mb-4 flex items-end gap-3"><div><p className="label-mono">{kicker}</p><h2 className="font-display text-lg font-semibold text-foreground">{title}</h2></div><span className="mb-1 h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent" /></div>; }
+function Empty({ text }: { text: string }) { return <p className="py-6 text-center text-sm text-muted-foreground">{text}</p>; }

@@ -3,13 +3,14 @@ import { obtenerContextoUsuario } from "@/lib/data";
 import { registrarAuditoria } from "@/lib/auditoria";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import BusquedaPantalla from "@/components/BusquedaPantalla";
 
 export default async function UsuariosPage({
     searchParams,
 }: {
-    searchParams: Promise<{ error?: string }>;
+    searchParams: Promise<{ error?: string; q?: string }>;
 }) {
-    const { error: errorParam } = await searchParams;
+    const { error: errorParam, q = "" } = await searchParams;
     const supabase = await createClient();
     const { profile } = await obtenerContextoUsuario();
 
@@ -17,7 +18,8 @@ export default async function UsuariosPage({
         .from("profiles")
         .select("id, nombre, apellido, email, estado")
         .eq("organizacion_id", profile?.organizacion_id ?? "")
-        .order("nombre");
+        .order("nombre")
+        .ilike("nombre", `%${q}%`);
 
     const { data: asignaciones } = await supabase
         .from("asignaciones")
@@ -62,6 +64,8 @@ export default async function UsuariosPage({
                     {errorParam}
                 </p>
             )}
+
+            <BusquedaPantalla placeholder="Buscar usuario por nombre" value={q} />
 
             <div className="panel divide-y divide-border">
                 {(usuarios ?? []).map((u) => {

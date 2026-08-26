@@ -1,72 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import ImagenConBrillo from "@/components/ImagenConBrillo";
+import Image from "next/image";
+import { useMemo, useState } from "react";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 type Simulador = { nombre: string; src: string; glow: string };
+const CATEGORIAS = ["Todos", "Aviación", "Helicópteros", "Espacio", "Drones", "Marino"];
 
 export default function SimuladoresGrid({ simuladores }: { simuladores: Simulador[] }) {
-    // null = ningún modal abierto; si no, guarda el simulador clickeado.
-    const [abierto, setAbierto] = useState<Simulador | null>(null);
+    const [busqueda, setBusqueda] = useState("");
+    const [categoria, setCategoria] = useState("Todos");
+    const [seleccionado, setSeleccionado] = useState(0);
+    const visibles = useMemo(() => simuladores.filter((simulador) => simulador.nombre.toLowerCase().includes(busqueda.toLowerCase()) && (categoria === "Todos" || simulador.nombre === categoria)), [busqueda, categoria, simuladores]);
+    const activo = visibles.findIndex((simulador) => simulador === simuladores[seleccionado]) >= 0 ? simuladores[seleccionado] : visibles[0];
 
-    return (
-        <>
-            <h2 className="relative text-center font-display text-xl font-bold text-foreground mb-6">
-                Simuladores
-            </h2>
-            <div className="relative max-w-4xl mx-auto px-6 pb-24 grid grid-cols-2 sm:grid-cols-5 gap-6">
-                {simuladores.map((sim) => (
-                    <button
-                        key={sim.nombre}
-                        type="button"
-                        onMouseEnter={() => setAbierto(sim)}
-                        onFocus={() => setAbierto(sim)}
-                        onClick={() => setAbierto(sim)}
-                        aria-label={`Ver simulador de ${sim.nombre}`}
-                        className="flex flex-col items-center gap-3 cursor-pointer group"
-                    >
-                        <div className="transition-transform group-hover:scale-105">
-                            <ImagenConBrillo
-                                src={sim.src}
-                                alt={sim.nombre}
-                                glowColor={sim.glow}
-                                className="h-20 w-20 sm:h-24 sm:w-24"
-                            />
-                        </div>
-                        <span className="text-xs text-muted-foreground">{sim.nombre}</span>
-                    </button>
-                ))}
-            </div>
-
-            {abierto && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label={`Simulador de ${abierto.nombre}`}
-                    onClick={() => setAbierto(null)}
-                >
-                    <div
-                        className="panel w-full max-w-sm p-6 text-center"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h2 className="font-display text-lg font-bold text-foreground mb-3">
-                            Simulador de {abierto.nombre}
-                        </h2>
-                        <p className="text-muted-foreground text-sm mb-6">
-                            Esta es una vista de ejemplo — el simulador de {abierto.nombre} todavía
-                            no está implementado en esta versión de AERION.
-                        </p>
-                        <button
-                            type="button"
-                            onClick={() => setAbierto(null)}
-                            className="bg-gradient-accent text-primary-foreground font-semibold px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity"
-                        >
-                            Volver a la bienvenida
-                        </button>
-                    </div>
-                </div>
-            )}
-        </>
-    );
+    return <div className="space-y-5">
+        <div className="flex flex-col gap-3 sm:flex-row">
+            <label className="relative flex-1"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><input value={busqueda} onChange={(event) => setBusqueda(event.target.value)} placeholder="Buscar simulador, versión o ID" aria-label="Buscar simulador" className="h-11 w-full rounded-xl border border-border bg-surface/70 pl-10 pr-4 text-sm text-foreground outline-none transition focus:border-cyan/60" /></label>
+            <button type="button" className="flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-surface/70 px-4 text-sm text-muted-foreground hover:border-cyan/50 hover:text-cyan"><SlidersHorizontal className="size-4" /> Filtros</button>
+        </div>
+        <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-surface/40 p-1">{CATEGORIAS.map((nombre) => <button key={nombre} type="button" onClick={() => setCategoria(nombre)} className={`whitespace-nowrap rounded-lg px-4 py-2 text-xs transition ${categoria === nombre ? "bg-gradient-accent font-semibold text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{nombre}</button>)}</div>
+        {activo && <div className="grid min-h-72 gap-3 lg:grid-cols-5">{visibles.map((simulador) => { const indice = simuladores.indexOf(simulador); const esActivo = simulador === activo; return <button key={simulador.nombre} type="button" onMouseEnter={() => setSeleccionado(indice)} onFocus={() => setSeleccionado(indice)} onClick={() => setSeleccionado(indice)} aria-label={simulador.nombre} className={`group relative min-h-56 overflow-hidden rounded-2xl border text-left transition-all duration-500 ${esActivo ? "border-cyan/70 shadow-[0_22px_55px_-25px_var(--cyan)] lg:col-span-3" : "border-border bg-surface/50 lg:col-span-1"}`}><Image src={simulador.src} alt={simulador.nombre} fill sizes="(min-width: 1024px) 50vw, 100vw" className={`object-cover transition duration-700 ${esActivo ? "opacity-85 group-hover:scale-105" : "opacity-45 group-hover:opacity-70"}`} /></button>; })}</div>}
+        {!activo && <p className="rounded-xl border border-border px-4 py-10 text-center text-sm text-muted-foreground">No se encontraron imágenes.</p>}
+    </div>;
 }

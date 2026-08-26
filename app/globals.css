@@ -34,6 +34,9 @@
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --shadow-panel: 0 24px 60px -30px rgba(0, 0, 0, 0.85);
+  --shadow-lift: 0 30px 70px -28px rgba(56, 132, 255, 0.38);
 }
 
 html {
@@ -175,4 +178,184 @@ body {
     linear-gradient(to bottom, color-mix(in oklab, var(--primary) 9%, transparent) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(120% 90% at 50% 0%, black, transparent 75%);
+}
+
+/* Etiqueta pequeña en mayúsculas con tracking ancho, usada en Test Lab */
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* Texto con degradado primary→cyan, usado en Test Lab */
+.text-gradient {
+  background-image: linear-gradient(120deg, var(--primary), var(--cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Línea de "escaneo" que cruza una tarjeta o modal, usada en Test Lab */
+@keyframes scan-x {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+.animate-scan-x {
+  animation: scan-x 2.8s linear infinite;
+}
+
+/* Resto de animaciones y utilidades traídas del sistema Nexus */
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-orbit {
+  animation: orbit 18s linear infinite;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) rotate(1.5deg);
+  }
+}
+.animate-drift {
+  animation: drift 9s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Halo suave detrás de un ícono o avatar (perfil, KPIs) */
+.glow-ring {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--primary) 35%, transparent),
+    0 0 32px -6px color-mix(in oklab, var(--primary) 55%, transparent);
+}
+
+/* Línea que recorre el borde superior de un panel (Panel scan) */
+@utility edge-scan {
+  &::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--cyan) 95%, transparent), transparent);
+    width: 40%;
+    animation: scan-x 4.5s linear infinite;
+    opacity: 0.75;
+  }
+}
+
+/* Marco giratorio que aparece al hacer hover/focus en una tarjeta (KpiCard) */
+@utility circuit-frame {
+  position: relative;
+  isolation: isolate;
+  border-radius: calc(var(--radius) + 8px);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -60%;
+    z-index: -2;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      color-mix(in oklab, var(--primary) 90%, transparent) 40deg,
+      color-mix(in oklab, var(--cyan) 90%, transparent) 70deg,
+      transparent 130deg,
+      transparent 360deg
+    );
+    animation: orbit 6s linear infinite;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    z-index: -1;
+    border-radius: inherit;
+    background-image: linear-gradient(
+      160deg,
+      color-mix(in oklab, var(--surface-raised) 92%, transparent),
+      color-mix(in oklab, var(--surface) 96%, transparent)
+    );
+  }
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 1;
+  }
+}
+
+/* Levanta la tarjeta y la ilumina levemente al pasar el mouse */
+@utility lift {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+  &:hover {
+    transform: translateY(-7px);
+    box-shadow: var(--shadow-lift);
+    border-color: color-mix(in oklab, var(--primary) 45%, transparent);
+  }
+}
+
+/* Marcas en las esquinas de un panel/modal, look "consola" */
+@utility corner-ticks {
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: color-mix(in oklab, var(--cyan) 60%, transparent);
+    pointer-events: none;
+  }
+  &::before {
+    top: 8px;
+    left: 8px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  &::after {
+    bottom: 8px;
+    right: 8px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
 }
