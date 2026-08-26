@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { obtenerContextoUsuario } from "@/lib/data";
 import { registrarAuditoria } from "@/lib/auditoria";
+import { ZONAS_HORARIAS } from "@/lib/zonas-horarias";
 import { redirect } from "next/navigation";
 
 export default async function NuevoEquipoPage({
@@ -90,13 +91,18 @@ export default async function NuevoEquipoPage({
                     placeholder="Código corto (ej: ALPHA)"
                     className="bg-secondary text-foreground rounded-lg px-4 py-3 border border-border"
                 />
-                <input
+                <select
                     name="zona_horaria"
                     required
                     defaultValue="America/Guayaquil"
-                    placeholder="Zona horaria IANA (ej: America/Guayaquil)"
                     className="bg-secondary text-foreground rounded-lg px-4 py-3 border border-border"
-                />
+                >
+                    {ZONAS_HORARIAS.map((zona) => (
+                        <option key={zona.value} value={zona.value}>
+                            {zona.label}
+                        </option>
+                    ))}
+                </select>
                 <select
                     name="responsable_id"
                     className="bg-secondary text-foreground rounded-lg px-4 py-3 border border-border"

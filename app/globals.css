@@ -150,6 +150,22 @@ body {
   animation: glow-pulse 4.5s ease-in-out infinite;
 }
 
+.chatbot-button {
+  position: relative;
+  display: grid;
+  width: 4.5rem;
+  height: 4.5rem;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--cyan) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--surface-raised) 90%, transparent);
+  box-shadow: 0 0 28px -5px color-mix(in oklab, var(--cyan) 70%, transparent);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.chatbot-button:hover { transform: translateY(-3px); box-shadow: 0 0 36px -3px color-mix(in oklab, var(--cyan) 85%, transparent); }
+.chatbot-hint { border: 1px solid color-mix(in oklab, var(--cyan) 35%, transparent); border-radius: 999px; background: var(--surface-raised); padding: 0.55rem 0.85rem; color: var(--foreground); font-size: 0.78rem; box-shadow: var(--shadow-panel); }
+.chatbot-window { width: min(22rem, calc(100vw - 2rem)); overflow: hidden; border: 1px solid var(--border-strong); border-radius: 1rem; background: color-mix(in oklab, var(--surface-raised) 98%, transparent); box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.9); }
+
 /* Barrido de luz usado por el overlay de transición al ir a Login/Registro */
 @keyframes sweep-in {
   from {

@@ -92,7 +92,7 @@ export default async function SecurityCenterPage({ searchParams }: { searchParam
                     <h2 className="font-display text-lg font-bold text-foreground mb-1">Matriz de riesgo</h2>
                     <p className="text-muted-foreground text-sm mb-4">Probabilidad × Impacto</p>
 
-                    <div className="min-w-[420px]">
+                    <div className="min-w-105">
                         <div className="grid grid-cols-[3rem_repeat(5,1fr)] gap-1.5">
                             <span />
                             {[1, 2, 3, 4, 5].map((i) => (
@@ -158,7 +158,7 @@ export default async function SecurityCenterPage({ searchParams }: { searchParam
                         <ol className="relative space-y-4 border-l border-border pl-4">
                             {(actividad ?? []).map((a: any, i: number) => (
                                 <li key={i} className="relative">
-                                    <span className="absolute top-1.5 -left-[19px] size-2 rounded-full bg-primary" />
+                                    <span className="absolute top-1.5 -left-4.75 size-2 rounded-full bg-primary" />
                                     <p className="text-xs text-muted-foreground font-mono">
                                         {new Date(a.fecha_hora).toLocaleString("es-EC")} · {a.actor?.nombre}{" "}
                                         {a.actor?.apellido}

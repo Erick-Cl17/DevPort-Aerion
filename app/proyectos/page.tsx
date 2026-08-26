@@ -12,15 +12,34 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pr
     const supabase = await createClient();
     const { data: proyectos } = await supabase.from("proyectos").select("id, codigo, nombre, descripcion, imagen_url, created_at").eq("organizacion_id", profile?.organizacion_id ?? "").order("created_at", { ascending: false });
 
-    const { data: archivos } = await supabase.storage
-        .from(ASSETS_BUCKET)
-        .list(`proyectos/${profile?.organizacion_id}`, { limit: 100, sortBy: { column: "created_at", order: "desc" } });
+    const carpetasPosibles = profile?.organizacion_id
+        ? [`proyectos/${profile.organizacion_id}`, "proyectos", ""]
+        : ["proyectos", ""];
 
-    const imagenesExistentes = (archivos ?? []).map((f) => {
-        const ruta = `proyectos/${profile?.organizacion_id}/${f.name}`;
-        const { data: pub } = supabase.storage.from(ASSETS_BUCKET).getPublicUrl(ruta);
-        return { path: ruta, url: pub.publicUrl };
-    });
+    const imagenesExistentes: { path: string; url: string }[] = [];
+    const rutasVistas = new Set<string>();
+
+    for (const carpeta of carpetasPosibles) {
+        const { data: archivos, error } = await supabase.storage
+            .from(ASSETS_BUCKET)
+            .list(carpeta, { limit: 200, sortBy: { column: "created_at", order: "desc" } });
+
+        if (error || !archivos) continue;
+
+        for (const archivo of archivos) {
+            const estaEsImagen = archivo.metadata?.mimetype?.startsWith("image/") || /\.(png|jpe?g|gif|webp|svg)$/i.test(archivo.name);
+            if (!estaEsImagen) continue;
+
+            const ruta = carpeta ? `${carpeta}/${archivo.name}` : archivo.name;
+            if (rutasVistas.has(ruta)) continue;
+
+            rutasVistas.add(ruta);
+            const { data: pub } = supabase.storage.from(ASSETS_BUCKET).getPublicUrl(ruta);
+            imagenesExistentes.push({ path: ruta, url: pub.publicUrl });
+        }
+
+        if (imagenesExistentes.length > 0) break;
+    }
 
     return (
         <section className="min-h-[calc(100vh-73px)] bg-background px-6 py-10">
@@ -38,7 +57,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pr
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {(proyectos ?? []).map((proyecto) => (
                         <article key={proyecto.id} className="panel circuit-frame overflow-hidden">
-                            <div className="relative aspect-[16/9] bg-secondary">
+                            <div className="relative aspect-video bg-secondary">
                                 {proyecto.imagen_url && <Image src={proyecto.imagen_url} alt={proyecto.nombre} fill sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover" />}
                             </div>
                             <div className="p-5">
@@ -55,7 +74,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pr
                 <div id="nuevo-proyecto" className="panel corner-ticks max-w-2xl p-6">
                     <p className="label-mono">Nuevo registro</p>
                     <h2 className="mt-1 font-display text-xl font-bold text-foreground">Registrar proyecto</h2>
-                    <form action={crearProyecto} encType="multipart/form-data" className="mt-5 grid gap-4">
+                    <form encType="multipart/form-data" className="mt-5 grid gap-4">
                         <input name="nombre" required placeholder="Nombre del proyecto" className="rounded-lg border border-border bg-secondary px-4 py-3 text-foreground" />
                         <textarea name="descripcion" rows={3} placeholder="Descripción (opcional)" className="rounded-lg border border-border bg-secondary px-4 py-3 text-foreground" />
 
@@ -82,7 +101,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pr
 
                         <SelectorImagenProyecto imagenesExistentes={imagenesExistentes} />
 
-                        <button type="submit" className="rounded-lg bg-gradient-accent px-4 py-3 font-semibold text-primary-foreground hover:opacity-90">Guardar proyecto</button>
+                        <button type="submit" formAction={crearProyecto} className="rounded-lg bg-gradient-accent px-4 py-3 font-semibold text-primary-foreground hover:opacity-90">Guardar proyecto</button>
                     </form>
                 </div>
             </div>

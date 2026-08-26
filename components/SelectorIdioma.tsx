@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const IDIOMAS = [
     { codigo: "ES", nombre: "Español" },
@@ -9,23 +10,34 @@ const IDIOMAS = [
 ];
 
 export default function SelectorIdioma() {
+    const router = useRouter();
     const [abierto, setAbierto] = useState(false);
-    const [idioma, setIdioma] = useState(() => {
-        if (typeof window === "undefined") return IDIOMAS[0];
-        return IDIOMAS.find((opcion) => opcion.codigo === window.localStorage.getItem("aerion-idioma")) ?? IDIOMAS[0];
-    });
+    const [idioma, setIdioma] = useState<string>(IDIOMAS[0].codigo);
 
     useEffect(() => {
-        const codigo = idioma.codigo;
+        const idiomaGuardado = window.localStorage.getItem("aerion-idioma");
+        if (idiomaGuardado === "ES" || idiomaGuardado === "EN" || idiomaGuardado === "ZH") {
+            setIdioma(idiomaGuardado);
+        }
+
+        const manejarCambioExterno = () => {
+            const guardado = window.localStorage.getItem("aerion-idioma");
+            if (guardado === "ES" || guardado === "EN" || guardado === "ZH") setIdioma(guardado);
+        };
+        window.addEventListener("storage", manejarCambioExterno);
+        return () => window.removeEventListener("storage", manejarCambioExterno);
+    }, []);
+
+    function cambiarIdioma(opcion: (typeof IDIOMAS)[number]) {
+        const codigo = opcion.codigo;
+        setIdioma(codigo);
         window.localStorage.setItem("aerion-idioma", codigo);
         document.cookie = `aerion-idioma=${codigo}; path=/; max-age=31536000; SameSite=Lax`;
         document.documentElement.lang = codigo === "ES" ? "es" : codigo === "EN" ? "en" : "zh";
+        document.documentElement.dataset.aerionIdioma = codigo;
         window.dispatchEvent(new CustomEvent("aerion:idioma", { detail: codigo }));
-    }, [idioma]);
-
-    function cambiarIdioma(opcion: (typeof IDIOMAS)[number]) {
-        setIdioma(opcion);
         setAbierto(false);
+        router.refresh();
     }
 
     return (
@@ -38,7 +50,7 @@ export default function SelectorIdioma() {
                 className="flex items-center gap-2 rounded-xl border border-border bg-surface/70 px-3 py-2 font-mono text-xs tracking-[0.16em] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-cyan/50 hover:text-cyan"
             >
                 <span aria-hidden>◎</span>
-                {idioma.codigo}
+                {idioma}
                 <span aria-hidden>{abierto ? "▴" : "▾"}</span>
             </button>
 
@@ -51,11 +63,11 @@ export default function SelectorIdioma() {
                             type="button"
                             onClick={() => cambiarIdioma(opcion)}
                             className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-surface-raised ${
-                                idioma.codigo === opcion.codigo ? "text-cyan" : "text-foreground"
+                                idioma === opcion.codigo ? "text-cyan" : "text-foreground"
                             }`}
                         >
                             <span>{opcion.nombre}</span>
-                            {idioma.codigo === opcion.codigo && <span aria-hidden>✓</span>}
+                            {idioma === opcion.codigo && <span aria-hidden>✓</span>}
                         </button>
                     ))}
                 </div>

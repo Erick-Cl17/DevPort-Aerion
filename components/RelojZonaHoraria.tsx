@@ -23,8 +23,13 @@ export default function RelojZonaHoraria({ zona }: { zona: string }) {
         ? new Intl.DateTimeFormat("es-EC", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: formato === 12, timeZone: zona }).format(ahora)
         : "--:--:--";
 
-    return <div className="hidden items-center gap-3 border-r border-border pr-4 sm:flex" aria-label={`Fecha y hora en ${zona}`}>
-        <div className="text-right leading-tight"><p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-muted-foreground">{fecha}</p><p className="mt-1 font-mono text-sm font-semibold text-cyan">{hora}</p></div>
-        <button type="button" onClick={() => { const nuevoFormato = formato === 24 ? 12 : 24; setFormato(nuevoFormato); window.localStorage.setItem("aerion-formato-hora", String(nuevoFormato)); }} className="rounded-md border border-border px-1.5 py-1 font-mono text-[0.55rem] text-muted-foreground transition hover:border-cyan/50 hover:text-cyan" aria-label={`Cambiar a formato de ${formato === 24 ? "12" : "24"} horas`}>{formato}H</button>
+    return <div className="flex items-center gap-3 border-r border-border pr-4" aria-label={`Fecha y hora en ${zona}`}>
+        <div className="text-right leading-tight">
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">{fecha}</p>
+            <div className="mt-1 flex items-center justify-end gap-2">
+                <span className="font-mono text-base font-semibold text-cyan">{hora}</span>
+                <button type="button" onClick={() => { const nuevoFormato = formato === 24 ? 12 : 24; setFormato(nuevoFormato); window.localStorage.setItem("aerion-formato-hora", String(nuevoFormato)); }} className="rounded-md border border-border px-1.5 py-0.5 font-mono text-[0.58rem] leading-none text-muted-foreground transition hover:border-cyan/50 hover:text-cyan" aria-label={`Cambiar a formato de ${formato === 24 ? "12" : "24"} horas`}>{formato}H</button>
+            </div>
+        </div>
     </div>;
 }

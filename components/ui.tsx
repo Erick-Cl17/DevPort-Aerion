@@ -91,7 +91,7 @@ export function SectionTitle({ kicker, title }: { kicker: string; title: string 
                 <p className="label-mono">{kicker}</p>
                 <h2 className="font-display text-lg font-semibold tracking-tight">{title}</h2>
             </div>
-            <span className="h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent" />
+            <span className="h-px flex-1 bg-linear-to-r from-primary/50 to-transparent" />
         </div>
     );
 }
@@ -143,7 +143,7 @@ export function KpiCard({
                 {value}
             </p>
             {delta && <p className={`mt-2 text-xs ${TONOS[tono] ?? TONOS.muted}`}>{delta}</p>}
-            <span className="mt-4 block h-px w-full bg-gradient-to-r from-primary/60 via-cyan/40 to-transparent" />
+            <span className="mt-4 block h-px w-full bg-linear-to-r from-primary/60 via-cyan/40 to-transparent" />
         </article>
     );
 }
@@ -164,7 +164,7 @@ export function Meter({ label, value, tono = "primary" }: { label: string; value
                               ? "bg-warning"
                               : tono === "success"
                                 ? "bg-success"
-                                : "bg-gradient-to-r from-primary to-cyan"
+                                : "bg-linear-to-r from-primary to-cyan"
                     }`}
                     style={{ width: `${value}%` }}
                 />

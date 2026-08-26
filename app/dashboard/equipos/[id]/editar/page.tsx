@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { obtenerContextoUsuario } from "@/lib/data";
 import { registrarAuditoria } from "@/lib/auditoria";
+import { ZONAS_HORARIAS } from "@/lib/zonas-horarias";
 import { redirect, notFound } from "next/navigation";
 
 export default async function EditarEquipoPage({
@@ -103,12 +104,18 @@ export default async function EditarEquipoPage({
                     defaultValue={equipo.nombre}
                     className="bg-secondary text-foreground rounded-lg px-4 py-3 border border-border"
                 />
-                <input
+                <select
                     name="zona_horaria"
                     required
                     defaultValue={equipo.zona_horaria}
                     className="bg-secondary text-foreground rounded-lg px-4 py-3 border border-border"
-                />
+                >
+                    {ZONAS_HORARIAS.map((zona) => (
+                        <option key={zona.value} value={zona.value}>
+                            {zona.label}
+                        </option>
+                    ))}
+                </select>
                 <select
                     name="responsable_id"
                     defaultValue={equipo.responsable_id ?? ""}

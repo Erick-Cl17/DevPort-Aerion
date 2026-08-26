@@ -2,67 +2,152 @@
 
 import { useEffect } from "react";
 
-const TRADUCCIONES: Record<string, [string, string]> = {
-    "Inicio": ["Home", "首页"],
-    "Dashboard": ["Dashboard", "仪表板"],
-    "Simuladores": ["Simulators", "模拟器"],
-    "Equipos": ["Teams", "团队"],
-    "Usuarios": ["Users", "用户"],
-    "Notificaciones": ["Notifications", "通知"],
-    "Proyecto": ["Project", "项目"],
-    "Administración": ["Administration", "管理"],
-    "Auditoría": ["Audit", "审计"],
-    "Perfil": ["Profile", "个人资料"],
-    "Cerrar sesión": ["Sign out", "退出登录"],
-    "Ingresar": ["Sign in", "登录"],
-    "Volver al dashboard": ["Back to dashboard", "返回仪表板"],
-    "Guardar cambios": ["Save changes", "保存更改"],
-    "Nueva revisión": ["New review", "新建审查"],
-    "Nuevo riesgo": ["New risk", "新建风险"],
-    "Nueva vulnerabilidad": ["New vulnerability", "新建漏洞"],
-    "Guardar riesgo": ["Save risk", "保存风险"],
-    "Guardar vulnerabilidad": ["Save vulnerability", "保存漏洞"],
-    "Ver todas": ["View all", "查看全部"],
-    "No tienes notificaciones.": ["You have no notifications.", "没有通知。"],
+type Idioma = "ES" | "EN" | "ZH";
+
+const TRADUCCIONES: Record<string, { EN: string; ZH: string }> = {
+    "Inicio": { EN: "Home", ZH: "首页" },
+    "Proyectos": { EN: "Projects", ZH: "项目" },
+    "Equipos": { EN: "Teams", ZH: "团队" },
+    "Usuarios": { EN: "Users", ZH: "用户" },
+    "Evaluaciones": { EN: "Assessments", ZH: "评估" },
+    "Centro de Seguridad": { EN: "Security Center", ZH: "安全中心" },
+    "Administración": { EN: "Administration", ZH: "管理" },
+    "Auditoría": { EN: "Audit", ZH: "审计" },
+    "Dashboard": { EN: "Dashboard", ZH: "仪表板" },
+    "Notificaciones": { EN: "Notifications", ZH: "通知" },
+    "Perfil": { EN: "Profile", ZH: "个人资料" },
+    "Configuración de Perfil": { EN: "Profile Settings", ZH: "个人资料设置" },
+    "Gestiona tu cuenta y configuración": { EN: "Manage your account and settings", ZH: "管理你的账户和设置" },
+    "Datos personales": { EN: "Personal information", ZH: "个人信息" },
+    "Nombre": { EN: "First name", ZH: "名字" },
+    "Apellido": { EN: "Last name", ZH: "姓氏" },
+    "Correo electrónico": { EN: "Email", ZH: "电子邮件" },
+    "Zona horaria": { EN: "Time zone", ZH: "时区" },
+    "Guardar cambios": { EN: "Save changes", ZH: "保存更改" },
+    "Estado": { EN: "Status", ZH: "状态" },
+    "activo": { EN: "active", ZH: "活跃" },
+    "Código de invitación": { EN: "Invitation code", ZH: "邀请码" },
+    "Compartir este código con las personas que quieras invitar a tu organización.": { EN: "Share this code with people you want to invite to your organization.", ZH: "与想邀请加入组织的人员分享此代码。" },
+    "Equipos a los que perteneces o administras": { EN: "Teams you belong to or manage", ZH: "你所属或管理的团队" },
+    "Nuevo equipo": { EN: "New team", ZH: "新团队" },
+    "Editar equipo": { EN: "Edit team", ZH: "编辑团队" },
+    "Crear equipo": { EN: "Create team", ZH: "创建团队" },
+    "Sin responsable": { EN: "No assignee", ZH: "无负责人" },
+    "Sin responsable por ahora": { EN: "No assignee for now", ZH: "暂时没有负责人" },
+    "Responsable": { EN: "Assignee", ZH: "负责人" },
+    "Código": { EN: "Code", ZH: "代码" },
+    "Editar": { EN: "Edit", ZH: "编辑" },
+    "Buscar equipo por nombre": { EN: "Search team by name", ZH: "按名称搜索团队" },
+    "Usuarios de tu organización y sus roles": { EN: "Users in your organization and their roles", ZH: "组织中的用户及其角色" },
+    "Buscar usuario por nombre": { EN: "Search user by name", ZH: "按姓名搜索用户" },
+    "Sin asignaciones activas": { EN: "No active assignments", ZH: "没有活跃分配" },
+    "Riesgos": { EN: "Risks", ZH: "风险" },
+    "Vulnerabilidades": { EN: "Vulnerabilities", ZH: "漏洞" },
+    "Riesgo": { EN: "Risk", ZH: "风险" },
+    "Nueva vulnerabilidad": { EN: "New vulnerability", ZH: "新漏洞" },
+    "Nuevo riesgo": { EN: "New risk", ZH: "新风险" },
+    "Riesgos recientes": { EN: "Recent risks", ZH: "最近风险" },
+    "Riesgos registrados": { EN: "Registered risks", ZH: "已登记风险" },
+    "Riesgos críticos": { EN: "Critical risks", ZH: "严重风险" },
+    "Categoría": { EN: "Category", ZH: "类别" },
+    "Descripción": { EN: "Description", ZH: "描述" },
+    "Descripción (opcional)": { EN: "Description (optional)", ZH: "描述（可选）" },
+    "Guardar": { EN: "Save", ZH: "保存" },
+    "Importar desde JSON": { EN: "Import from JSON", ZH: "从 JSON 导入" },
+    "Leída": { EN: "Read", ZH: "已读" },
+    "Marcar todas como leídas": { EN: "Mark all as read", ZH: "全部标记为已读" },
+    "Roles": { EN: "Roles", ZH: "角色" },
+    "Cargos": { EN: "Positions", ZH: "职位" },
+    "Revisiones": { EN: "Reviews", ZH: "评审" },
+    "Nueva revisión": { EN: "New review", ZH: "新评审" },
+    "Revisión": { EN: "Review", ZH: "评审" },
+    "Centro de operaciones": { EN: "Operations center", ZH: "运营中心" },
+    "Resumen operativo de tu organización.": { EN: "Operational summary of your organization.", ZH: "组织运营概览。" },
+    "Actividad reciente": { EN: "Recent activity", ZH: "最近活动" },
+    "No hay actividad registrada.": { EN: "No activity registered.", ZH: "暂无活动记录。" },
+    "No hay riesgos registrados.": { EN: "No risks registered.", ZH: "暂无风险记录。" },
+    "No hay revisiones registradas.": { EN: "No reviews registered.", ZH: "暂无评审记录。" },
+    "Volver al dashboard": { EN: "Back to dashboard", ZH: "返回仪表板" },
+    "Volver a Proyecto": { EN: "Back to Project", ZH: "返回项目" },
+    "Ingresar": { EN: "Sign in", ZH: "登录" },
+    "Idioma": { EN: "Language", ZH: "语言" },
+    "Abrir navegación": { EN: "Open navigation", ZH: "打开导航" },
+    "Cerrar navegación": { EN: "Close navigation", ZH: "关闭导航" },
+    "COLLAPSE": { EN: "COLLAPSE", ZH: "折叠" },
+    "Bienvenido a": { EN: "Welcome to", ZH: "欢迎来到" },
+    "AERION - Gestión de revisiones multiequipo": { EN: "AERION - Multi-team review management", ZH: "AERION - 多团队评审管理" },
+    "Controla el acceso a cada módulo por organización, equipo, cargo y rol. Crea revisiones con plazos, respeta la zona horaria de cada equipo y mantén trazabilidad completa de cada cambio. Inicia sesión o crea tu cuenta para continuar.": { EN: "Control access to each module by organization, team, position and role. Create reviews with deadlines, respect each team's time zone and maintain complete traceability of every change. Sign in or create your account to continue.", ZH: "按组织、团队、职位和角色控制每个模块的访问权限。创建带有截止日期的评审，遵循每个团队的时区，并完整追踪每项变更。登录或创建账户以继续。" },
+    "Inicia sesión o crea tu cuenta para continuar.": { EN: "Sign in or create your account to continue.", ZH: "登录或创建账户以继续。" },
+    "Roles por equipo": { EN: "Roles by team", ZH: "团队角色" },
+    "Una misma persona puede ser Supervisor en un equipo y Consulta en otro.": { EN: "The same person can be a Supervisor on one team and Viewer on another.", ZH: "同一个人可以在一个团队担任主管，在另一个团队担任查看者。" },
+    "Plazos y zona horaria": { EN: "Deadlines and time zone", ZH: "截止日期和时区" },
+    "Cada revisión guarda su plazo en UTC y se presenta convertido a la zona horaria de cada usuario.": { EN: "Each review stores its deadline in UTC and displays it in each user's time zone.", ZH: "每项评审以 UTC 保存截止时间，并根据每位用户的时区显示。" },
+    "Trazabilidad total": { EN: "Complete traceability", ZH: "完整可追溯性" },
+    "Cada creación, inicio, finalización y cambio de rol queda registrado en auditoría.": { EN: "Every creation, start, completion and role change is recorded in the audit log.", ZH: "每次创建、开始、完成和角色变更都会记录在审计日志中。" },
+    "Buscar simulador, versión o ID": { EN: "Search simulator, version or ID", ZH: "搜索模拟器、版本或 ID" },
+    "Buscar simulador": { EN: "Search simulator", ZH: "搜索模拟器" },
+    "Filtros": { EN: "Filters", ZH: "筛选" },
+    "Todos": { EN: "All", ZH: "全部" },
+    "Aviación": { EN: "Aviation", ZH: "航空" },
+    "Helicópteros": { EN: "Helicopters", ZH: "直升机" },
+    "Espacio": { EN: "Space", ZH: "太空" },
+    "Drones": { EN: "Drones", ZH: "无人机" },
+    "Marino": { EN: "Marine", ZH: "海事" },
+    "No se encontraron imágenes.": { EN: "No images found.", ZH: "未找到图片。" },
 };
 
-function actualizarIdioma(codigo: string) {
-    const indice: 0 | 1 | null = codigo === "EN" ? 0 : codigo === "ZH" ? 1 : null;
-    const elementos = document.querySelectorAll("body *:not(script):not(style)");
-    elementos.forEach((elemento) => {
-        if (elemento.children.length > 0) return;
-        const original = elemento.getAttribute("data-aerion-text") ?? elemento.textContent ?? "";
-        if (!elemento.hasAttribute("data-aerion-text")) elemento.setAttribute("data-aerion-text", original);
-        const traduccion = TRADUCCIONES[original.trim()];
-        if (traduccion && indice !== null) elemento.textContent = original.replace(original.trim(), traduccion[indice]);
-        else if (indice === null) elemento.textContent = original;
+function construirIndice(idioma: Idioma) {
+    const indice = new Map<string, string>();
+    Object.entries(TRADUCCIONES).forEach(([es, traduccion]) => {
+        indice.set(es, idioma === "ES" ? es : traduccion[idioma]);
+        indice.set(traduccion.EN, idioma === "EN" ? traduccion.EN : idioma === "ES" ? es : traduccion.ZH);
+        indice.set(traduccion.ZH, idioma === "ZH" ? traduccion.ZH : idioma === "ES" ? es : traduccion.EN);
     });
-    document.querySelectorAll<HTMLElement>("[placeholder]").forEach((elemento) => {
-        const original = elemento.getAttribute("data-aerion-placeholder") ?? elemento.getAttribute("placeholder") ?? "";
-        if (!elemento.hasAttribute("data-aerion-placeholder")) elemento.setAttribute("data-aerion-placeholder", original);
-        const traduccion = TRADUCCIONES[original.trim()];
-        if (traduccion && indice !== null) elemento.setAttribute("placeholder", traduccion[indice]);
-        else if (indice === null) elemento.setAttribute("placeholder", original);
+    return indice;
+}
+
+function traducirPagina(idioma: Idioma) {
+    const indice = construirIndice(idioma);
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodos: Text[] = [];
+    let nodo: Node | null;
+    while ((nodo = walker.nextNode())) nodos.push(nodo as Text);
+    nodos.forEach((texto) => {
+        const original = texto.nodeValue ?? "";
+        const limpio = original.trim();
+        const traducido = indice.get(limpio);
+        if (traducido && limpio !== traducido) {
+            texto.nodeValue = original.replace(limpio, traducido);
+        }
+    });
+
+    document.querySelectorAll<HTMLElement>("[placeholder], [aria-label], [title]").forEach((elemento) => {
+        ["placeholder", "aria-label", "title"].forEach((atributo) => {
+            const valor = elemento.getAttribute(atributo);
+            const traducido = valor ? indice.get(valor) : undefined;
+            if (traducido) elemento.setAttribute(atributo, traducido);
+        });
     });
 }
 
 export default function LanguageRuntime() {
     useEffect(() => {
-        const idioma = window.localStorage.getItem("aerion-idioma") ?? "ES";
-        document.documentElement.lang = idioma === "ES" ? "es" : idioma === "EN" ? "en" : "zh";
-        actualizarIdioma(idioma);
-        const cambiar = (evento: Event) => actualizarIdioma((evento as CustomEvent<string>).detail);
-        window.addEventListener("aerion:idioma", cambiar);
-        const observador = new MutationObserver(() => {
-            observador.disconnect();
-            actualizarIdioma(window.localStorage.getItem("aerion-idioma") ?? "ES");
-            observador.observe(document.body, { childList: true, subtree: true });
-        });
-        observador.observe(document.body, { childList: true, subtree: true });
-        return () => {
-            window.removeEventListener("aerion:idioma", cambiar);
-            observador.disconnect();
+        const codigo = window.localStorage.getItem("aerion-idioma") ?? "ES";
+        const idiomaInicial: Idioma = codigo === "EN" || codigo === "ZH" ? codigo : "ES";
+        document.documentElement.lang = idiomaInicial === "ES" ? "es" : idiomaInicial === "EN" ? "en" : "zh";
+        document.documentElement.dataset.aerionIdioma = idiomaInicial;
+        traducirPagina(idiomaInicial);
+
+        const manejarCambio = (evento: Event) => {
+            const siguiente = (evento as CustomEvent<string>).detail ?? "ES";
+            const idioma: Idioma = siguiente === "EN" || siguiente === "ZH" ? siguiente : "ES";
+            document.documentElement.lang = idioma === "ES" ? "es" : idioma === "EN" ? "en" : "zh";
+            document.documentElement.dataset.aerionIdioma = idioma;
+            traducirPagina(idioma);
         };
+
+        window.addEventListener("aerion:idioma", manejarCambio);
+        return () => window.removeEventListener("aerion:idioma", manejarCambio);
     }, []);
 
     return null;

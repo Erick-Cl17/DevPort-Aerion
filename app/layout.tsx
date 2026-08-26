@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar"; 
 import LanguageRuntime from "@/components/LanguageRuntime";
 import AerionSidebar from "@/components/AerionSidebar";
+import AerionChatbot from "@/components/AerionChatbot";
 
 export const metadata: Metadata = {
     title: "AERION",
@@ -21,6 +22,7 @@ export default function RootLayout({
                 <AerionSidebar />
                 <Navbar />
                 <LanguageRuntime />
+                <AerionChatbot />
                 <main className="min-h-[calc(100vh-73px)] lg:ml-64">{children}</main>
             </body>
         </html>
