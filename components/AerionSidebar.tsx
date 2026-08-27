@@ -15,6 +15,7 @@ const ENLACES = [
     { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
     { href: "/dashboard/proyecto", label: "Evaluaciones", icon: ClipboardList },
     { href: "/dashboard/security-center", label: "Centro de Seguridad", icon: ShieldCheck },
+    { href: "/test-lab", label: "Laboratorio de APIs", icon: FlaskConical },
     { href: "/dashboard/administracion", label: "Administración", icon: Settings },
     { href: "/dashboard/auditoria", label: "Auditoría", icon: ClipboardList },
 ];
@@ -23,6 +24,14 @@ export default function AerionSidebar() {
     const pathname = usePathname();
     const [colapsada, setColapsada] = useState(false);
     const [movilAbierta, setMovilAbierta] = useState(false);
+
+    function alternarColapso() {
+        setColapsada((value) => {
+            const siguiente = !value;
+            document.documentElement.style.setProperty("--sidebar-width", siguiente ? "5rem" : "16rem");
+            return siguiente;
+        });
+    }
 
     return (
         <>
@@ -51,7 +60,7 @@ export default function AerionSidebar() {
                         </Link>;
                     })}
                 </nav>
-                <button type="button" onClick={() => setColapsada((value) => !value)} className={`mt-auto mb-5 flex items-center gap-3 px-4 py-3 font-mono text-[0.65rem] tracking-[0.2em] text-muted-foreground transition-colors hover:text-cyan ${colapsada ? "justify-center" : ""}`}>
+                <button type="button" onClick={alternarColapso} className={`mt-auto mb-5 flex items-center gap-3 px-4 py-3 font-mono text-[0.65rem] tracking-[0.2em] text-muted-foreground transition-colors hover:text-cyan ${colapsada ? "justify-center" : ""}`}>
                     <ChevronLeft className={`size-4 transition-transform ${colapsada ? "rotate-180" : ""}`} />
                     {!colapsada && "COLLAPSE"}
                 </button>

@@ -4,6 +4,17 @@ Gestión de revisiones, actividades y usuarios por organización, equipo,
 cargo y rol. Cada equipo puede tener su propia zona horaria y sus propios
 plazos, con trazabilidad completa de cada cambio.
 
+## Deploy on Vercel
+
+Demo en vivo: [DevPort-Aerion](https://dev-port-aerion-7ys0cy1z8-erick-bb67.vercel.app/)
+
+## Capturas de Pantalla
+
+
+## Sustentación
+
+Video de defensa: [Sustentación DevPort Aerion]()
+Enlace de Diapositivas: [Presentación DevPort Aerion]()
 
 ## Stack tecnológico
 
@@ -12,7 +23,7 @@ plazos, con trazabilidad completa de cada cambio.
 - Tailwind CSS 3.4
 - Supabase (PostgreSQL + Auth + Storage)
 - TimeZoneDB (API externa de zonas horarias)
-- Vercel (deploy) — _pendiente_
+- Vercel (deploy)
 
 ## Roles de usuario
 
@@ -107,10 +118,6 @@ Todas las siguientes cuentas utilizan la misma contraseña: **AerionQ8#Zx**
 - [x] Rutas públicas y privadas (mínimo 2 de cada una), protegidas con middleware
 - [x] Segunda API externa (Open Notify), también con manejo de error
 - [x] Manejo correcto de Server Components y Client Components
-
-## Deploy on Vercel
-
-Demo en vivo: [DevPort-Aerion]()
 
 ## Autor
 

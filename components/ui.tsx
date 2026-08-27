@@ -44,7 +44,6 @@ export function Modal({
                 aria-modal="true"
                 className={`panel edge-scan corner-ticks animate-rise relative my-auto w-full ${wide ? "max-w-3xl" : "max-w-xl"} p-6`}
             >
-                <span className="pointer-events-none absolute inset-0 grid-field rounded-[inherit] opacity-40" aria-hidden />
                 <div className="relative flex items-start justify-between gap-4">
                     <div className="min-w-0">
                         {kicker && <p className="label-mono">{kicker}</p>}

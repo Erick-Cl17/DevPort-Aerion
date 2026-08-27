@@ -23,7 +23,7 @@ export default function RootLayout({
                 <Navbar />
                 <LanguageRuntime />
                 <AerionChatbot />
-                <main className="min-h-[calc(100vh-73px)] lg:ml-64">{children}</main>
+                <main className="min-h-[calc(100vh-73px)] lg:ml-[var(--sidebar-width)]">{children}</main>
             </body>
         </html>
     );

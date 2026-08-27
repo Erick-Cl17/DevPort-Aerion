@@ -5,6 +5,6 @@ export const IMAGENES = {
     simEspacio: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/sim-space.jpg",
     simDrones: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/sim-drone.jpg",
     simMarino: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/sim-marino.jpg",
-    chatbot: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/chatbotRobot.png",
+    chatbot: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/chatbotRobot.mp4",
     flujo: "https://kkmuvaoenmeghegsqbjp.supabase.co/storage/v1/object/public/aerion-assets/FlujoRecomendado.jpg"
 };

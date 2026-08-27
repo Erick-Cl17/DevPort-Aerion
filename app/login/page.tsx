@@ -111,7 +111,7 @@ export default function LoginPage() {
     }
 
     return (
-        <section className="relative min-h-[70vh] flex items-center justify-center px-4 py-10 grid-field">
+        <section className="relative min-h-[70vh] flex items-center justify-center px-4 py-10">
             <div aria-hidden className="absolute left-1/2 top-1/4 h-56 w-56 -translate-x-1/2 rounded-full bg-cyan/20 blur-3xl animate-glow-pulse pointer-events-none" />
 
             <div className="relative w-full max-w-5xl panel edge-scan p-2 sm:p-3">

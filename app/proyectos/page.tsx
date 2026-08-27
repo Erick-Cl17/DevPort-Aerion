@@ -8,9 +8,16 @@ import SelectorImagenProyecto from "@/components/SelectorImagenProyecto";
 
 export default async function ProyectosPage({ searchParams }: { searchParams: Promise<{ error?: string; ok?: string }> }) {
     const { error, ok } = await searchParams;
-    const { profile } = await obtenerContextoUsuario();
+    const { user, profile } = await obtenerContextoUsuario();
     const supabase = await createClient();
-    const { data: proyectos } = await supabase.from("proyectos").select("id, codigo, nombre, descripcion, imagen_url, created_at").eq("organizacion_id", profile?.organizacion_id ?? "").order("created_at", { ascending: false });
+    let proyectosQuery = supabase
+        .from("proyectos")
+        .select("id, codigo, nombre, descripcion, imagen_url, created_at")
+        .order("created_at", { ascending: false });
+    if (profile?.organizacion_id) {
+        proyectosQuery = proyectosQuery.eq("organizacion_id", profile.organizacion_id);
+    }
+    const { data: proyectos } = await proyectosQuery;
 
     const carpetasPosibles = profile?.organizacion_id
         ? [`proyectos/${profile.organizacion_id}`, "proyectos", ""]
@@ -49,7 +56,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pr
                         <p className="label-mono">Proyectos</p>
                         <h1 className="mt-1 font-display text-3xl font-bold text-foreground">Proyectos de la organización</h1>
                     </div>
-                    <Link href="#nuevo-proyecto" className="w-fit rounded-lg bg-gradient-accent px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">+ Registrar nuevo proyecto</Link>
+                    {user && <Link href="#nuevo-proyecto" className="w-fit rounded-lg bg-gradient-accent px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">+ Registrar nuevo proyecto</Link>}
                 </header>
                 {error && <p className="rounded-lg border border-critical/40 bg-critical/10 px-4 py-3 text-sm text-critical">{error}</p>}
                 {ok && <p className="rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">Proyecto registrado correctamente.</p>}
@@ -71,7 +78,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pr
                 </div>
                 {(!proyectos || proyectos.length === 0) && <p className="panel py-12 text-center text-sm text-muted-foreground">Todavía no hay proyectos registrados.</p>}
 
-                <div id="nuevo-proyecto" className="panel corner-ticks max-w-2xl p-6">
+                {user && <div id="nuevo-proyecto" className="panel corner-ticks max-w-2xl p-6">
                     <p className="label-mono">Nuevo registro</p>
                     <h2 className="mt-1 font-display text-xl font-bold text-foreground">Registrar proyecto</h2>
                     <form encType="multipart/form-data" className="mt-5 grid gap-4">
@@ -103,7 +110,7 @@ export default async function ProyectosPage({ searchParams }: { searchParams: Pr
 
                         <button type="submit" formAction={crearProyecto} className="rounded-lg bg-gradient-accent px-4 py-3 font-semibold text-primary-foreground hover:opacity-90">Guardar proyecto</button>
                     </form>
-                </div>
+                </div>}
             </div>
         </section>
     );

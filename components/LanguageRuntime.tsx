@@ -115,6 +115,17 @@ const TRADUCCIONES: Record<string, { EN: string; ZH: string }> = {
     "Drones": { EN: "Drones", ZH: "无人机" },
     "Marino": { EN: "Marine", ZH: "海事" },
     "No se encontraron imágenes.": { EN: "No images found.", ZH: "未找到图片。" },
+    "Laboratorio de APIs": { EN: "API Lab", ZH: "API 实验室" },
+    "Datos en tiempo real con Open Notify": { EN: "Real-time data with Open Notify", ZH: "Open Notify 实时数据" },
+    "Consulta pública de la posición de la Estación Espacial Internacional y de las personas que se encuentran actualmente en el espacio.": { EN: "Public lookup of the International Space Station's position and the people currently in space.", ZH: "公开查询国际空间站的位置以及当前在太空中的人员。" },
+    "Posición ISS": { EN: "ISS position", ZH: "国际空间站位置" },
+    "Estación Espacial Internacional": { EN: "International Space Station", ZH: "国际空间站" },
+    "Latitud": { EN: "Latitude", ZH: "纬度" },
+    "Longitud": { EN: "Longitude", ZH: "经度" },
+    "Actualizado": { EN: "Updated", ZH: "更新时间" },
+    "Personas en el espacio": { EN: "People in space", ZH: "太空中的人员" },
+    "Tripulación actual": { EN: "Current crew", ZH: "当前乘员" },
+    "Fuente: Open Notify. La información puede no estar disponible si el servicio externo no responde.": { EN: "Source: Open Notify. Information may be unavailable if the external service does not respond.", ZH: "来源：Open Notify。如果外部服务没有响应，信息可能不可用。" },
 };
 
 function leerIdiomaActual(): Idioma {

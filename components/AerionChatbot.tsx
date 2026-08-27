@@ -39,6 +39,7 @@ const RESUMENES: Record<string, Texto> = {
     auditoria: { ES: "En Auditoría revisas qué persona hizo cada acción y puedes filtrar por acción, recurso o resultado. También puedes registrar una acción manual y adjuntar un archivo guardado en Storage.", EN: "In Audit you review who performed each action and filter by action, resource or result. You can also register a manual action and attach a file stored in Storage.", ZH: "在审计中查看每个人执行的操作，并按操作、资源或结果筛选。还可以登记手动操作并附加保存在 Storage 中的文件。" },
     administracion: { ES: "En Administración encuentras Cargos, Roles, Reportes y Auditoría. Roles define niveles: superadmin, admin de organización, supervisor y consulta.", EN: "Administration contains Positions, Roles, Reports and Audit. Roles define levels: superadmin, organization admin, supervisor and viewer.", ZH: "管理模块包含职位、角色、报告和审计。角色等级包括超级管理员、组织管理员、主管和查看者。" },
     perfil: { ES: "En Perfil actualizas tus datos, correo y zona horaria, que también controla fechas, reloj y saludo.", EN: "In Profile you update your details, email and time zone, which also controls dates, clock and greeting.", ZH: "在个人资料中更新信息、邮箱和时区；时区也控制日期、时钟和问候语。" },
+    laboratorio: { ES: "En el Laboratorio de APIs puedes consultar Open Notify: la posición de la Estación Espacial Internacional y las personas que están en el espacio.", EN: "In the API Lab you can query Open Notify for the International Space Station's position and the people currently in space.", ZH: "在 API 实验室中可以查询 Open Notify，了解国际空间站的位置和当前在太空中的人员。" },
     general: { ES: "Esta pantalla pertenece a AERION. Abre el manual para consultar sus pasos específicos.", EN: "This screen belongs to AERION. Open the manual for its specific steps.", ZH: "此页面属于 AERION。打开手册查看具体步骤。" },
 };
 
@@ -58,6 +59,7 @@ function moduloActual(pathname: string) {
     if (pathname.includes("perfil")) return "perfil";
     if (pathname.includes("revisiones")) return "revisiones";
     if (pathname.includes("security-center")) return "seguridad";
+    if (pathname.includes("test-lab")) return "laboratorio";
     if (pathname.includes("auditoria")) return "auditoria";
     if (pathname.includes("administracion")) return "administracion";
     return "general";
@@ -69,6 +71,7 @@ export default function AerionChatbot() {
     const [abierto, setAbierto] = useState(false);
     const [mensaje, setMensaje] = useState("");
     const [respuesta, setRespuesta] = useState<Texto | null>(null);
+    const [videoDisponible, setVideoDisponible] = useState(true);
 
     useEffect(() => {
         const actualizar = (evento: Event) => {
@@ -111,7 +114,24 @@ export default function AerionChatbot() {
                 </div>
                 <Link href={`/manual?modulo=${modulo}`} className="flex items-center gap-2 border-t border-border px-4 py-3 text-xs font-semibold text-cyan hover:bg-secondary"><BookOpen className="size-4" />{texto("manual")}</Link>
             </section>}
-            <button type="button" onClick={() => setAbierto((valor) => !valor)} className="chatbot-button" aria-label={texto("titulo")}><Image src={IMAGENES.chatbot} alt="AERION" width={68} height={68} className="size-16 object-contain" unoptimized /><MessageCircle className="absolute bottom-0 right-0 size-5 rounded-full bg-cyan p-1 text-background" /></button>
+            <button type="button" onClick={() => setAbierto((valor) => !valor)} className="chatbot-button" aria-label={texto("titulo")}>
+                {videoDisponible ? (
+                    <video
+                        src={IMAGENES.chatbot}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
+                        onError={() => setVideoDisponible(false)}
+                        aria-label="AERION"
+                        className="size-[4.75rem] rounded-full object-cover"
+                    />
+                ) : (
+                    <Image src={IMAGENES.logo} alt="AERION" width={76} height={76} className="size-[4.75rem] rounded-full object-cover" unoptimized />
+                )}
+                <MessageCircle className="absolute bottom-0 right-0 size-5 rounded-full bg-cyan p-1 text-background" />
+            </button>
         </div>
     );
 }

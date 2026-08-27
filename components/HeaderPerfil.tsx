@@ -53,7 +53,6 @@ export default function HeaderPerfil({
             {abierto && (
                 <div className="absolute right-0 top-[calc(100%+0.6rem)] z-50 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-border-strong bg-surface/95 p-2 shadow-panel backdrop-blur-xl">
                     <div className="relative overflow-hidden rounded-xl border border-primary/25 bg-primary/10 p-4">
-                        <span className="pointer-events-none absolute inset-0 grid-field opacity-60" aria-hidden />
                         <div className="relative flex items-center gap-3">
                             <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary/25 font-display text-base font-bold text-cyan glow-ring">
                                 {iniciales(nombre, apellido)}

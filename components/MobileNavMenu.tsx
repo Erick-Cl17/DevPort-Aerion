@@ -11,6 +11,7 @@ const ENLACES = [
     { href: "/dashboard/usuarios", label: "Usuarios" },
     { href: "/dashboard/proyecto", label: "Evaluaciones" },
     { href: "/dashboard/security-center", label: "Centro de Seguridad" },
+    { href: "/test-lab", label: "Laboratorio de APIs" },
     { href: "/dashboard/administracion", label: "Administración" },
     { href: "/dashboard/auditoria", label: "Auditoría" },
 ];

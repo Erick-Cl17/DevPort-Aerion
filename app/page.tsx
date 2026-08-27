@@ -6,7 +6,7 @@ import { SIMULADORES } from "@/lib/simuladores";
 
 export default function Home() {
     return (
-        <section className="relative min-h-[calc(100vh-73px)] grid-field">
+        <section className="relative min-h-[calc(100vh-73px)]">
             <div className="absolute inset-0 bg-gradient-hero pointer-events-none" />
 
             <div className="relative max-w-2xl mx-auto px-6 pt-20 pb-10 text-center">
