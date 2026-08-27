@@ -504,7 +504,7 @@ export default function ManualPage() {
               </button>
             ))}
           </nav>
-          <article className="manual-reader panel relative flex min-h-[31rem] flex-col justify-between overflow-hidden p-6 sm:p-10">
+          <article className="manual-reader panel relative flex min-h-31rem flex-col justify-between overflow-hidden p-6 sm:p-10">
             <div
               aria-hidden
               className="absolute right-0 top-0 h-40 w-40 rounded-full bg-cyan/10 blur-3xl"
