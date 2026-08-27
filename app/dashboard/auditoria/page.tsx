@@ -71,7 +71,7 @@ export default async function AuditoriaPage({ searchParams }: { searchParams: Pr
                 <button type="submit" className="rounded-lg border border-cyan/40 px-4 py-2 text-sm font-semibold text-cyan hover:bg-cyan/10">Filtrar</button>
             </form>
 
-            <form action={registrarAuditoria} encType="multipart/form-data" className="panel mb-6 grid gap-4 p-5 sm:grid-cols-2">
+            <form action={registrarAuditoria} className="panel mb-6 grid gap-4 p-5 sm:grid-cols-2">
                 <h2 className="font-display text-lg font-semibold text-foreground sm:col-span-2">Registrar acción</h2>
                 <input name="accion" required placeholder="Acción realizada" className="rounded-lg border border-border bg-secondary px-3 py-2 text-foreground" />
                 <input name="recurso" required placeholder="Recurso o módulo" className="rounded-lg border border-border bg-secondary px-3 py-2 text-foreground" />

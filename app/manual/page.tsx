@@ -50,6 +50,10 @@ const CONTENIDO = {
         "Revisa los avisos de la plataforma y marca como leídos los pendientes.",
       ],
       [
+        "Centro de Seguridad",
+        "Analiza la matríz de probabilidad e impacto para priorizar riesgos críticos y revisar actividad reciente de la organización.",
+      ],
+      [
         "Administración",
         "Desde Administración accede a Cargos, Roles, Reportes y Auditoría. Cargos define funciones; Roles define permisos; Reportes resume cumplimiento; Auditoría conserva el historial.",
       ],
@@ -100,6 +104,10 @@ const CONTENIDO = {
         "Review platform alerts and mark pending notifications as read.",
       ],
       [
+        "Security Center",
+        "Combine probability and impact to prioritize critical risks and review recent organizational activity.",
+      ],
+      [
         "Administration",
         "Use Administration to access Positions, Roles, Reports and Audit. Positions describe functions, Roles define permissions, Reports summarize compliance and Audit keeps history.",
       ],
@@ -128,6 +136,10 @@ const CONTENIDO = {
       ["评审", "创建包含截止时间、团队和负责人的评审，并记录进度和事件。"],
       ["通知", "查看平台通知并将待处理通知标记为已读。"],
       [
+        "安全中心",
+        "结合概率和影响来优先处理高风险事项，并查看组织最近的活动和关键风险。",
+      ],
+      [
         "管理",
         "使用管理模块访问职位、角色、报告和审计。职位描述职能，角色定义权限，报告总结合规情况，审计保存操作历史。",
       ],
@@ -143,10 +155,10 @@ const CONTENIDO = {
 const PASOS = {
   ES: [
     [
-      "Desde el menú lateral entra a Administración y configura la organización. Luego abre Roles para definir qué puede hacer cada nivel de usuario.",
-      "Continúa en Cargos para registrar puestos como coordinador o analista. Después entra a Equipos y crea cada equipo con su código y zona horaria.",
-      "Registra o invita usuarios y, en Usuarios > Asignar, selecciona usuario, equipo, rol y cargo. Comprueba que la asignación aparezca activa.",
-      "Finalmente crea proyectos, registra riesgos y vulnerabilidades, programa revisiones y usa Dashboard, Notificaciones y Auditoría para dar seguimiento.",
+      "En la pantalla de inicio de AERION revisa la propuesta de valor, luego selecciona Registrarse o Acceder para continuar.",
+      "Si aún no tienes cuenta, crea una organización y completa los datos básicos de tu empresa o proyecto.",
+      "Cuando entres al sistema, usa el menú lateral para navegar rápidamente entre módulos y pantallas clave.",
+      "La vista inicial sirve como punto de entrada para empezar la configuración del entorno y de tus equipos.",
     ],
     [
       "En Dashboard observa las tarjetas superiores: revisiones, riesgos críticos, vulnerabilidades y porcentaje de cumplimiento.",
@@ -217,10 +229,10 @@ const PASOS = {
   ],
   EN: [
     [
-      "Open Administration from the sidebar and configure the organization. Then open Roles to define what each user level can do.",
-      "Continue with Positions, then create each team with its code and time zone.",
-      "Register or invite users and open Users > Assign user to select user, team, role and position. Verify the assignment is active.",
-      "Finally create projects, record findings, schedule reviews and use Dashboard, Notifications and Audit for follow-up.",
+      "On the AERION home screen, review the value proposition, then choose Sign up or Sign in to continue.",
+      "If you need a new account, create the organization and complete the basic company or project information.",
+      "After logging in, use the sidebar to move quickly between the main modules and screens.",
+      "The home view acts as the entry point to start configuring the environment and the teams you work with.",
     ],
     [
       "Review the top cards for reviews, critical risks, vulnerabilities and compliance.",
@@ -291,8 +303,10 @@ const PASOS = {
   ],
   ZH: [
     [
-      "了解 AERION 的用途，使用注册创建账户，或使用登录进入系统。",
-      "登录后使用侧边栏访问各个模块。",
+      "在 AERION 首页查看产品价值说明，然后选择注册或登录继续使用系统。",
+      "如果需要创建新账户，先创建组织并填写基本的公司或项目信息。",
+      "登录后，使用侧边栏可以快速访问各个核心模块和页面。",
+      "首页是开始配置环境和团队工作的入口。",
     ],
     [
       "查看评审、风险、漏洞、合规率、团队和用户指标。",

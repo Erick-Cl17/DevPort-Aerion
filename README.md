@@ -8,8 +8,6 @@ plazos, con trazabilidad completa de cada cambio.
 ## Stack tecnológico
 
 - Next.js 14.2 (App Router)
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 - TypeScript 5
 - Tailwind CSS 3.4
 - Supabase (PostgreSQL + Auth + Storage)
@@ -69,12 +67,6 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
 ## Variables de entorno
 
 | Variable | Para qué sirve |
@@ -85,14 +77,16 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Credenciales de prueba
 
-## Learn More
+Todas las siguientes cuentas utilizan la misma contraseña: **AerionQ8#Zx**
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Email                      | Rol                          | Nivel               | Nombre   | Apellido | Organización             | Equipo       |
+|-----------------------------|------------------------------|---------------------|----------|----------|--------------------------|--------------|
+| superadmin@aerion-test.com  | Superadministrador           | superadmin          | Sara     | Admin    | Organización de Prueba   | Equipo Alpha |
+| adminorg@aerion-test.com    | Administrador de organización| admin_organizacion  | Andrés   | Organización | Organización de Prueba | Equipo Alpha |
+| adminequipo@aerion-test.com | Administrador de equipo      | admin_equipo        | Elena    | Equipo   | Organización de Prueba   | Equipo Alpha |
+| supervisor@aerion-test.com  | Supervisor                   | supervisor          | Sofía    | Supervisor | Organización de Prueba | Equipo Alpha |
+| revisor@aerion-test.com     | Revisor                      | revisor             | Renato   | Revisor  | Organización de Prueba   | Equipo Alpha |
+| consulta@aerion-test.com    | Consulta                     | consulta            | Carla    | Consulta | Organización de Prueba   | Equipo Alpha |
 
 ## Funcionalidades — checklist
 
@@ -110,13 +104,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 - [x] Pantalla de auditoría (registra creación de equipos, revisiones, cargos, roles, asignaciones)
 - [x] Notificaciones visibles en la interfaz (asignación de revisión, finalización fuera de plazo)
 - [x] Menú responsive (móvil) y tablas con scroll horizontal en pantallas angostas
+- [x] Rutas públicas y privadas (mínimo 2 de cada una), protegidas con middleware
+- [x] Segunda API externa (Open Notify), también con manejo de error
+- [x] Manejo correcto de Server Components y Client Components
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Demo en vivo: [DevPort-Aerion]()
 
 ## Autor
 
-_[Erick Clavijo](https://github.com/Erick-Cl17)_
+[Erick Clavijo](https://github.com/Erick-Cl17)

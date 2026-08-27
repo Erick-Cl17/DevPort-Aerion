@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 type Idioma = "ES" | "EN" | "ZH";
@@ -7,6 +8,27 @@ type Idioma = "ES" | "EN" | "ZH";
 const TRADUCCIONES: Record<string, { EN: string; ZH: string }> = {
     "Inicio": { EN: "Home", ZH: "首页" },
     "Proyectos": { EN: "Projects", ZH: "项目" },
+    "Proyectos de la organización": { EN: "Organization projects", ZH: "组织项目" },
+    "Registrar nuevo proyecto": { EN: "Register new project", ZH: "注册新项目" },
+    "+ Registrar nuevo proyecto": { EN: "+ Register new project", ZH: "+ 注册新项目" },
+    "Todavía no hay proyectos registrados.": { EN: "No projects have been registered yet.", ZH: "目前还没有注册项目。" },
+    "Nuevo registro": { EN: "New entry", ZH: "新记录" },
+    "Registrar proyecto": { EN: "Register project", ZH: "注册项目" },
+    "Nombre del proyecto": { EN: "Project name", ZH: "项目名称" },
+    "Descripción (opcional)": { EN: "Description (optional)", ZH: "说明（可选）" },
+    "Guardar proyecto": { EN: "Save project", ZH: "保存项目" },
+    "Ver evaluaciones": { EN: "View evaluations", ZH: "查看评估" },
+    "En progreso": { EN: "In progress", ZH: "进行中" },
+    "Pausado": { EN: "Paused", ZH: "已暂停" },
+    "Finalizado": { EN: "Completed", ZH: "已完成" },
+    "Cancelado": { EN: "Cancelled", ZH: "已取消" },
+    "Versión": { EN: "Version", ZH: "版本" },
+    "Cantidad de pruebas": { EN: "Test count", ZH: "测试数量" },
+    "Imagen del proyecto": { EN: "Project image", ZH: "项目图片" },
+    "Subir nueva": { EN: "Upload new", ZH: "上传新图片" },
+    "Elegir existente": { EN: "Choose existing", ZH: "选择现有图片" },
+    "No se eligió ningún archivo": { EN: "No file selected", ZH: "未选择任何文件" },
+    "Proyecto registrado correctamente.": { EN: "Project registered successfully.", ZH: "项目已成功注册。" },
     "Equipos": { EN: "Teams", ZH: "团队" },
     "Usuarios": { EN: "Users", ZH: "用户" },
     "Evaluaciones": { EN: "Assessments", ZH: "评估" },
@@ -51,7 +73,6 @@ const TRADUCCIONES: Record<string, { EN: string; ZH: string }> = {
     "Riesgos críticos": { EN: "Critical risks", ZH: "严重风险" },
     "Categoría": { EN: "Category", ZH: "类别" },
     "Descripción": { EN: "Description", ZH: "描述" },
-    "Descripción (opcional)": { EN: "Description (optional)", ZH: "描述（可选）" },
     "Guardar": { EN: "Save", ZH: "保存" },
     "Importar desde JSON": { EN: "Import from JSON", ZH: "从 JSON 导入" },
     "Leída": { EN: "Read", ZH: "已读" },
@@ -96,6 +117,23 @@ const TRADUCCIONES: Record<string, { EN: string; ZH: string }> = {
     "No se encontraron imágenes.": { EN: "No images found.", ZH: "未找到图片。" },
 };
 
+function leerIdiomaActual(): Idioma {
+    if (typeof window === "undefined") return "ES";
+
+    const local = window.localStorage.getItem("aerion-idioma");
+    const cookieValue = document.cookie
+        .split("; ")
+        .find((item) => item.startsWith("aerion-idioma="))
+        ?.split("=")[1];
+
+    const codigo = local === "EN" || local === "ZH" ? local : cookieValue === "EN" || cookieValue === "ZH" ? cookieValue : "ES";
+    if (codigo !== "ES") {
+        window.localStorage.setItem("aerion-idioma", codigo);
+        document.cookie = `aerion-idioma=${codigo}; path=/; max-age=31536000; SameSite=Lax`;
+    }
+    return codigo;
+}
+
 function construirIndice(idioma: Idioma) {
     const indice = new Map<string, string>();
     Object.entries(TRADUCCIONES).forEach(([es, traduccion]) => {
@@ -112,6 +150,7 @@ function traducirPagina(idioma: Idioma) {
     const nodos: Text[] = [];
     let nodo: Node | null;
     while ((nodo = walker.nextNode())) nodos.push(nodo as Text);
+
     nodos.forEach((texto) => {
         const original = texto.nodeValue ?? "";
         const limpio = original.trim();
@@ -131,24 +170,31 @@ function traducirPagina(idioma: Idioma) {
 }
 
 export default function LanguageRuntime() {
-    useEffect(() => {
-        const codigo = window.localStorage.getItem("aerion-idioma") ?? "ES";
-        const idiomaInicial: Idioma = codigo === "EN" || codigo === "ZH" ? codigo : "ES";
-        document.documentElement.lang = idiomaInicial === "ES" ? "es" : idiomaInicial === "EN" ? "en" : "zh";
-        document.documentElement.dataset.aerionIdioma = idiomaInicial;
-        traducirPagina(idiomaInicial);
+    const pathname = usePathname();
 
-        const manejarCambio = (evento: Event) => {
-            const siguiente = (evento as CustomEvent<string>).detail ?? "ES";
-            const idioma: Idioma = siguiente === "EN" || siguiente === "ZH" ? siguiente : "ES";
+    useEffect(() => {
+        const aplicarIdioma = (siguiente?: string) => {
+            const codigo = siguiente ?? leerIdiomaActual();
+            const idioma: Idioma = codigo === "EN" || codigo === "ZH" ? codigo : "ES";
             document.documentElement.lang = idioma === "ES" ? "es" : idioma === "EN" ? "en" : "zh";
             document.documentElement.dataset.aerionIdioma = idioma;
             traducirPagina(idioma);
         };
 
+        aplicarIdioma();
+
+        const manejarCambio = (evento: Event) => {
+            const siguiente = (evento as CustomEvent<string>).detail ?? leerIdiomaActual();
+            aplicarIdioma(siguiente);
+        };
+
         window.addEventListener("aerion:idioma", manejarCambio);
-        return () => window.removeEventListener("aerion:idioma", manejarCambio);
-    }, []);
+        window.addEventListener("storage", manejarCambio);
+        return () => {
+            window.removeEventListener("aerion:idioma", manejarCambio);
+            window.removeEventListener("storage", manejarCambio);
+        };
+    }, [pathname]);
 
     return null;
 }
