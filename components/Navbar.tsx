@@ -46,7 +46,7 @@ export default async function Navbar() {
     }
 
     return (
-        <nav className="sticky top-0 z-40 border-b border-border bg-surface/80 px-6 py-5 backdrop-blur flex min-h-84px items-center justify-between lg:ml-[var(--sidebar-width)]">
+        <nav className="sticky top-0 z-40 border-b border-border bg-surface/80 px-6 py-5 backdrop-blur flex min-h-84px items-center justify-between lg:ml-var(--sidebar-width)">
             <div className="ml-auto flex items-center gap-4 sm:gap-6">
                 <RelojZonaHoraria zona={profile?.zona_horaria ?? "America/Guayaquil"} />
                 <SelectorIdioma />
