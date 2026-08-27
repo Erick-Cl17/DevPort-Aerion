@@ -125,10 +125,10 @@ export default function AerionChatbot() {
                         preload="metadata"
                         onError={() => setVideoDisponible(false)}
                         aria-label="AERION"
-                        className="size-[4.75rem] rounded-full object-cover"
+                        className="size-4.75rem rounded-full object-cover"
                     />
                 ) : (
-                    <Image src={IMAGENES.logo} alt="AERION" width={76} height={76} className="size-[4.75rem] rounded-full object-cover" unoptimized />
+                    <Image src={IMAGENES.logo} alt="AERION" width={76} height={76} className="size-4.75rem rounded-full object-cover" unoptimized />
                 )}
                 <MessageCircle className="absolute bottom-0 right-0 size-5 rounded-full bg-cyan p-1 text-background" />
             </button>
