@@ -9,12 +9,22 @@ plazos, con trazabilidad completa de cada cambio.
 Demo en vivo: [DevPort-Aerion](https://dev-port-aerion-7ys0cy1z8-erick-bb67.vercel.app/)
 
 ## Capturas de Pantalla
+Pantalla de Inicio:
+   ![Pantalla de Inicio](docs/screenshots/inicio.png)
 
+Manual:
+   ![Manual](docs/screenshots/manual.png)
+
+Pantalla de iniciar sesión:
+   ![Pantalla de iniciar sesión](docs/screenshots/Login.png)
+
+Pantalla de Centro de Seguridad:
+   ![Pantalla de Centro de Seguridad](docs/screenshots/centroSeguridad.png)
 
 ## Sustentación
 
-Video de defensa: [Sustentación DevPort Aerion]()
-Enlace de Diapositivas: [Presentación DevPort Aerion]()
+Video de defensa: [Sustentación DevPort Aerion](https://ister-my.sharepoint.com/:v:/g/personal/erick_clavijo_ister_edu_ec/IQD62tHETROxTpiz-iUUvnbUAQ0k-U73wzSOvPh3wd7KrXM?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=m8uNnt)
+Enlace de Diapositivas: [Presentación DevPort Aerion](https://ister-my.sharepoint.com/:b:/g/personal/erick_clavijo_ister_edu_ec/IQCvdiEqF9sMRb4MHfIkKNKKAVc-XDsKZD9rmK1J2-kVylA?e=VNGLz4)
 
 ## Stack tecnológico
 
