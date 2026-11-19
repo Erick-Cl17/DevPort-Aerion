@@ -1,9 +1,23 @@
 import { createClient } from "@/lib/supabase-server";
-import { obtenerContextoUsuario } from "@/lib/data";
+import { exigirAdministradorUsuarios } from "@/lib/autorizacion";
 import { registrarAuditoria } from "@/lib/auditoria";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import BusquedaPantalla from "@/components/BusquedaPantalla";
+
+type AsignacionUsuario = {
+    id: string;
+    usuario_id: string;
+    equipos: Relacion<{ id: string; nombre: string | null }>;
+    roles: Relacion<{ nombre: string | null; nivel: string | null }>;
+    cargos: Relacion<{ nombre: string | null }>;
+};
+
+type Relacion<T> = T | T[] | null;
+
+function primerRelacion<T>(valor: Relacion<T> | undefined): T | null {
+    return Array.isArray(valor) ? valor[0] ?? null : valor ?? null;
+}
 
 export default async function UsuariosPage({
     searchParams,
@@ -12,27 +26,71 @@ export default async function UsuariosPage({
 }) {
     const { error: errorParam, q = "" } = await searchParams;
     const supabase = await createClient();
-    const { profile } = await obtenerContextoUsuario();
+    const { profile, equiposAdministrados, esAdministradorOrganizacion } =
+        await exigirAdministradorUsuarios();
 
-    const { data: usuarios } = await supabase
+    let consultaUsuarios = supabase
         .from("profiles")
         .select("id, nombre, apellido, email, estado")
         .eq("organizacion_id", profile?.organizacion_id ?? "")
         .order("nombre")
         .ilike("nombre", `%${q}%`);
 
-    const { data: asignaciones } = await supabase
+    let consultaAsignaciones = supabase
         .from("asignaciones")
-        .select("id, usuario_id, estado, equipos(nombre), roles(nombre, nivel), cargos(nombre)")
+        .select("id, usuario_id, estado, equipos(id, nombre), roles(nombre, nivel), cargos(nombre)")
+        .eq("organizacion_id", profile?.organizacion_id ?? "")
         .eq("estado", "activo");
+
+    if (!esAdministradorOrganizacion) {
+        consultaAsignaciones = consultaAsignaciones.in("equipo_id", equiposAdministrados);
+    }
+
+    const { data: asignaciones } = await consultaAsignaciones;
+    if (!esAdministradorOrganizacion) {
+        const usuarioIds = [...new Set((asignaciones ?? []).map((a) => a.usuario_id))];
+        consultaUsuarios = usuarioIds.length
+            ? consultaUsuarios.in("id", usuarioIds)
+            : consultaUsuarios.in("id", [""]);
+    }
+    const { data: usuarios } = await consultaUsuarios;
 
     async function desactivarAsignacion(formData: FormData) {
         "use server";
         const supabase = await createClient();
-        const { user } = await obtenerContextoUsuario();
-        const asignacionId = formData.get("asignacion_id") as string;
+        const { profile, user, equiposAdministrados, esAdministradorOrganizacion } =
+            await exigirAdministradorUsuarios();
+        const asignacionId = String(formData.get("asignacion_id") ?? "").trim();
 
-        await supabase.from("asignaciones").update({ estado: "inactivo" }).eq("id", asignacionId);
+        const { data: asignacion, error: errorAsignacion } = await supabase
+            .from("asignaciones")
+            .select("equipo_id, roles(nivel)")
+            .eq("id", asignacionId)
+            .eq("organizacion_id", profile?.organizacion_id ?? "")
+            .single();
+
+        if (
+            errorAsignacion ||
+            !asignacion ||
+            (!esAdministradorOrganizacion &&
+                (!equiposAdministrados.includes(asignacion.equipo_id) ||
+                    ["superadmin", "admin_organizacion"].includes(
+                        primerRelacion(asignacion.roles)?.nivel ?? ""
+                    )))
+        ) {
+            redirect("/dashboard/usuarios?error=" + encodeURIComponent("Asignación no válida"));
+        }
+
+        const { error } = await supabase
+            .from("asignaciones")
+            .update({ estado: "inactivo" })
+            .eq("id", asignacionId)
+            .eq("organizacion_id", profile?.organizacion_id ?? "")
+            .eq("equipo_id", asignacion.equipo_id);
+
+        if (error) {
+            redirect(`/dashboard/usuarios?error=${encodeURIComponent(error.message)}`);
+        }
 
         await registrarAuditoria({
             actorId: user!.id,
@@ -69,7 +127,9 @@ export default async function UsuariosPage({
 
             <div className="panel divide-y divide-border">
                 {(usuarios ?? []).map((u) => {
-                    const propias = (asignaciones ?? []).filter((a: any) => a.usuario_id === u.id);
+                    const propias = ((asignaciones ?? []) as AsignacionUsuario[]).filter(
+                        (asignacion) => asignacion.usuario_id === u.id
+                    );
                     return (
                         <div key={u.id} className="px-4 py-3 text-sm">
                             <div className="flex justify-between items-center mb-1">
@@ -82,25 +142,39 @@ export default async function UsuariosPage({
                                 <p className="text-muted-foreground text-xs">Sin asignaciones activas</p>
                             ) : (
                                 <ul className="flex flex-wrap gap-2">
-                                    {propias.map((a: any) => (
+                                    {propias.map((a) => {
+                                        const equipo = primerRelacion(a.equipos);
+                                        const rol = primerRelacion(a.roles);
+                                        const cargo = primerRelacion(a.cargos);
+                                        const puedeDesactivar =
+                                            esAdministradorOrganizacion ||
+                                            (equiposAdministrados.includes(primerRelacion(a.equipos)?.id ?? "") &&
+                                                !["superadmin", "admin_organizacion"].includes(
+                                                    primerRelacion(a.roles)?.nivel ?? ""
+                                                ));
+
+                                        return (
                                         <li
                                             key={a.id}
                                             className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-md flex items-center gap-2"
                                         >
-                                            {a.equipos?.nombre} · {a.roles?.nombre}
-                                            {a.cargos?.nombre ? ` · ${a.cargos.nombre}` : ""}
-                                            <form action={desactivarAsignacion}>
-                                                <input type="hidden" name="asignacion_id" value={a.id} />
-                                                <button
-                                                    type="submit"
-                                                    className="text-critical hover:opacity-70"
-                                                    title="Quitar asignación"
-                                                >
-                                                    ×
-                                                </button>
-                                            </form>
+                                            {equipo?.nombre} · {rol?.nombre}
+                                            {cargo?.nombre ? ` · ${cargo.nombre}` : ""}
+                                            {puedeDesactivar && (
+                                                <form action={desactivarAsignacion}>
+                                                    <input type="hidden" name="asignacion_id" value={a.id} />
+                                                    <button
+                                                        type="submit"
+                                                        className="text-critical hover:opacity-70"
+                                                        title="Quitar asignación"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </form>
+                                            )}
                                         </li>
-                                    ))}
+                                        );
+                                    })}
                                 </ul>
                             )}
                         </div>

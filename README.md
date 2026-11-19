@@ -52,17 +52,18 @@ independiente.
 
 ## Modelo de datos
 
-12 tablas relacionadas (ver `AERION_Script_SQL.sql` para el detalle completo):
+El modelo relacional incluye 16 tablas y una vista (consulta [AERION_Script_SQL.sql](./AERION_Script_SQL.sql) para el esquema completo y las políticas RLS):
 
 - **organizaciones** → **equipos** → **asignaciones** (usuario + equipo + cargo + rol)
 - **profiles** extiende `auth.users` (1:1)
+- **cargos**
 - **roles** ↔ **permisos** (N:M vía `roles_permisos`)
 - **revisiones** (recurso principal) → **revision_eventos** (trazabilidad) y **evidencias** (archivos en Storage, solo se guarda la ruta)
 - **auditoria** y **notificaciones**, independientes
+- **proyectos** → **riesgos** y **vulnerabilidades**
 
-El estado de una revisión (No iniciada / En proceso / Finalizada en plazo /
-Finalizada fuera de plazo / Vencida) se calcula en tiempo real con una
-función SQL, no se guarda como columna fija.
+El estado y cumplimiento de las revisiones se calculan en tiempo real en la
+vista `revisiones_estado`; no se guardan como columnas fijas.
 
 ## Instalación local
 

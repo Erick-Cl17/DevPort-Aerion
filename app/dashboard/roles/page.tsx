@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
-import { obtenerContextoUsuario } from "@/lib/data";
+import { exigirAdministradorOrganizacion } from "@/lib/autorizacion";
 import { registrarAuditoria } from "@/lib/auditoria";
 import { redirect } from "next/navigation";
 
@@ -18,6 +18,7 @@ export default async function RolesPage({
     searchParams: Promise<{ error?: string }>;
 }) {
     const { error: errorParam } = await searchParams;
+    const { nivelesActivos } = await exigirAdministradorOrganizacion();
     const supabase = await createClient();
 
     const { data: roles } = await supabase
@@ -28,13 +29,24 @@ export default async function RolesPage({
     async function crearRol(formData: FormData) {
         "use server";
         const supabase = await createClient();
-        const { profile, user } = await obtenerContextoUsuario();
+        const { profile, user, nivelesActivos } = await exigirAdministradorOrganizacion();
 
         const nombre = ((formData.get("nombre") as string) ?? "").trim();
         const nivel = ((formData.get("nivel") as string) ?? "").trim();
 
-        if (!nombre || !nivel || !profile?.organizacion_id) {
-            redirect("/dashboard/roles?error=" + encodeURIComponent("Nombre y nivel son obligatorios"));
+        if (
+            !nombre ||
+            !NIVELES.includes(nivel) ||
+            !profile?.organizacion_id
+        ) {
+            redirect("/dashboard/roles?error=" + encodeURIComponent("Nombre y nivel válidos son obligatorios"));
+        }
+
+        if (nivel === "superadmin" && !nivelesActivos.includes("superadmin")) {
+            redirect(
+                "/dashboard/roles?error=" +
+                    encodeURIComponent("No tienes permiso para crear un rol superadmin")
+            );
         }
 
         const { data: nuevo, error } = await supabase
@@ -85,11 +97,13 @@ export default async function RolesPage({
                     className="bg-secondary text-foreground rounded-lg px-4 py-2 text-sm border border-border"
                 >
                     <option value="">Nivel…</option>
-                    {NIVELES.map((n) => (
-                        <option key={n} value={n}>
-                            {n}
-                        </option>
-                    ))}
+                    {NIVELES.filter(
+                        (n) => n !== "superadmin" || nivelesActivos.includes("superadmin")
+                    ).map((n) => (
+                            <option key={n} value={n}>
+                                {n}
+                            </option>
+                        ))}
                 </select>
                 <button
                     type="submit"

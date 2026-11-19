@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
-import { obtenerContextoUsuario } from "@/lib/data";
+import { exigirAdministradorUsuarios } from "@/lib/autorizacion";
 import { registrarAuditoria } from "@/lib/auditoria";
 import { redirect } from "next/navigation";
 
@@ -9,20 +9,49 @@ export default async function AsignarUsuarioPage({
     searchParams: Promise<{ error?: string }>;
 }) {
     const { error: errorParam } = await searchParams;
+    const {
+        profile,
+        nivelesActivos,
+        equiposAdministrados,
+        esAdministradorOrganizacion,
+    } = await exigirAdministradorUsuarios();
     const supabase = await createClient();
-    const { profile } = await obtenerContextoUsuario();
 
-    const [{ data: usuarios }, { data: equipos }, { data: cargos }, { data: roles }] = await Promise.all([
-        supabase.from("profiles").select("id, nombre, apellido").eq("organizacion_id", profile?.organizacion_id ?? ""),
-        supabase.from("equipos").select("id, nombre"),
-        supabase.from("cargos").select("id, nombre"),
-        supabase.from("roles").select("id, nombre, nivel"),
-    ]);
+    let consultaEquipos = supabase
+        .from("equipos")
+        .select("id, nombre")
+        .eq("organizacion_id", profile?.organizacion_id ?? "");
+    if (!esAdministradorOrganizacion) {
+        consultaEquipos = consultaEquipos.in("id", equiposAdministrados);
+    }
+
+    const [{ data: usuarios }, { data: equipos }, { data: cargos }, { data: roles }] =
+        await Promise.all([
+            supabase
+                .from("profiles")
+                .select("id, nombre, apellido")
+                .eq("organizacion_id", profile?.organizacion_id ?? ""),
+            consultaEquipos,
+            supabase
+                .from("cargos")
+                .select("id, nombre")
+                .eq("organizacion_id", profile?.organizacion_id ?? ""),
+            supabase
+                .from("roles")
+                .select("id, nombre, nivel")
+                .eq("organizacion_id", profile?.organizacion_id ?? ""),
+        ]);
 
     async function crearAsignacion(formData: FormData) {
         "use server";
         const supabase = await createClient();
-        const { profile, user } = await obtenerContextoUsuario();
+        const {
+            profile,
+            user,
+            nivelesActivos,
+            equiposAdministrados,
+            esAdministradorOrganizacion,
+        } = await exigirAdministradorUsuarios();
 
         const usuarioId = ((formData.get("usuario_id") as string) ?? "").trim();
         const equipoId = ((formData.get("equipo_id") as string) ?? "").trim();
@@ -33,6 +62,60 @@ export default async function AsignarUsuarioPage({
             redirect(
                 "/dashboard/usuarios/asignar?error=" +
                     encodeURIComponent("Usuario, equipo y rol son obligatorios")
+            );
+        }
+
+        const [{ data: equipoSeleccionado, error: errorEquipo }, { data: rolSeleccionado, error: errorRol }, { data: usuarioSeleccionado, error: errorUsuario }] =
+            await Promise.all([
+                supabase
+                    .from("equipos")
+                    .select("id")
+                    .eq("id", equipoId)
+                    .eq("organizacion_id", profile.organizacion_id)
+                    .single(),
+                supabase
+                    .from("roles")
+                    .select("nivel")
+                    .eq("id", rolId)
+                    .eq("organizacion_id", profile.organizacion_id)
+                    .single(),
+                supabase
+                    .from("profiles")
+                    .select("id")
+                    .eq("id", usuarioId)
+                    .eq("organizacion_id", profile.organizacion_id)
+                    .single(),
+            ]);
+
+        if (
+            errorEquipo ||
+            !equipoSeleccionado ||
+            (!esAdministradorOrganizacion && !equiposAdministrados.includes(equipoSeleccionado.id))
+        ) {
+            redirect(
+                "/dashboard/usuarios/asignar?error=" +
+                    encodeURIComponent("No tienes permiso para administrar ese equipo")
+            );
+        }
+
+        if (
+            errorRol ||
+            !rolSeleccionado ||
+            (rolSeleccionado.nivel === "superadmin" && !nivelesActivos.includes("superadmin")) ||
+            (!esAdministradorOrganizacion &&
+                (rolSeleccionado.nivel === "superadmin" ||
+                    rolSeleccionado.nivel === "admin_organizacion"))
+        ) {
+            redirect(
+                "/dashboard/usuarios/asignar?error=" +
+                    encodeURIComponent("No tienes permiso para asignar ese rol")
+            );
+        }
+
+        if (errorUsuario || !usuarioSeleccionado) {
+            redirect(
+                "/dashboard/usuarios/asignar?error=" +
+                    encodeURIComponent("El usuario no pertenece a tu organización")
             );
         }
 
@@ -103,11 +186,18 @@ export default async function AsignarUsuarioPage({
                     className="bg-secondary text-foreground rounded-lg px-4 py-3 border border-border"
                 >
                     <option value="">Rol…</option>
-                    {(roles ?? []).map((r) => (
-                        <option key={r.id} value={r.id}>
-                            {r.nombre} ({r.nivel})
-                        </option>
-                    ))}
+                    {(roles ?? [])
+                        .filter(
+                            (r) =>
+                                (r.nivel !== "superadmin" || nivelesActivos.includes("superadmin")) &&
+                                (esAdministradorOrganizacion ||
+                                    (r.nivel !== "superadmin" && r.nivel !== "admin_organizacion"))
+                        )
+                        .map((r) => (
+                            <option key={r.id} value={r.id}>
+                                {r.nombre} ({r.nivel})
+                            </option>
+                        ))}
                 </select>
 
                 <select
